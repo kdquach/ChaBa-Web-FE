@@ -1,11 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, Card, Table, InputNumber, message, Row, Col, Space } from 'antd';
-import { SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useNavigate, useParams } from 'react-router-dom';
-import PageHeader from '../../components/PageHeader';
-import LoadingSpinner from '../../components/LoadingSpinner';
-import { createOrder, updateOrder, getOrder } from '../../api/orders';
-import { getProducts } from '../../api/products';
+import React, { useState, useEffect } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  Card,
+  Table,
+  InputNumber,
+  message,
+  Row,
+  Col,
+  Space,
+} from "antd";
+import { SaveOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useNavigate, useParams } from "react-router-dom";
+import PageHeader from "../../components/PageHeader";
+import LoadingSpinner from "../../components/LoadingSpinner";
+import { createOrder, updateOrder, getOrder } from "../../api/orders";
+import { fetchProducts } from "../../api/products";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -15,7 +27,7 @@ const OrderFormPage = () => {
   const { id } = useParams();
   const isEditing = Boolean(id);
   const [form] = Form.useForm();
-  
+
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [products, setProducts] = useState([]);
@@ -27,13 +39,15 @@ const OrderFormPage = () => {
       loadOrder();
     } else {
       // Thêm item đầu tiên cho đơn hàng mới
-      setOrderItems([{
-        key: Date.now(),
-        productId: null,
-        productName: '',
-        price: 0,
-        quantity: 1,
-      }]);
+      setOrderItems([
+        {
+          key: Date.now(),
+          productId: null,
+          productName: "",
+          price: 0,
+          quantity: 1,
+        },
+      ]);
     }
   }, [id, isEditing]);
 
@@ -42,7 +56,7 @@ const OrderFormPage = () => {
       const response = await getProducts({ limit: 1000 });
       setProducts(response.data);
     } catch (error) {
-      message.error('Không thể tải danh sách sản phẩm');
+      message.error("Không thể tải danh sách sản phẩm");
     }
   };
 
@@ -50,22 +64,22 @@ const OrderFormPage = () => {
     try {
       setLoading(true);
       const order = await getOrder(id);
-      
+
       form.setFieldsValue({
         customerName: order.customerName,
         customerPhone: order.customerPhone,
         paymentMethod: order.paymentMethod,
         notes: order.notes,
       });
-      
-      const items = order.items.map(item => ({
+
+      const items = order.items.map((item) => ({
         ...item,
         key: item.id,
       }));
       setOrderItems(items);
     } catch (error) {
-      message.error('Không thể tải thông tin đơn hàng');
-      navigate('/orders');
+      message.error("Không thể tải thông tin đơn hàng");
+      navigate("/orders");
     } finally {
       setLoading(false);
     }
@@ -76,7 +90,7 @@ const OrderFormPage = () => {
     const newItem = {
       key: Date.now(),
       productId: null,
-      productName: '',
+      productName: "",
       price: 0,
       quantity: 1,
     };
@@ -86,22 +100,22 @@ const OrderFormPage = () => {
   // Xóa item
   const removeItem = (key) => {
     if (orderItems.length <= 1) {
-      message.warning('Đơn hàng phải có ít nhất 1 sản phẩm');
+      message.warning("Đơn hàng phải có ít nhất 1 sản phẩm");
       return;
     }
-    setOrderItems(orderItems.filter(item => item.key !== key));
+    setOrderItems(orderItems.filter((item) => item.key !== key));
   };
 
   // Cập nhật item
   const updateItem = (key, field, value) => {
-    const newItems = orderItems.map(item => {
+    const newItems = orderItems.map((item) => {
       if (item.key === key) {
-        if (field === 'productId') {
-          const product = products.find(p => p.id === value);
+        if (field === "productId") {
+          const product = products.find((p) => p.id === value);
           return {
             ...item,
             productId: value,
-            productName: product?.name || '',
+            productName: product?.name || "",
             price: product?.price || 0,
           };
         }
@@ -115,12 +129,12 @@ const OrderFormPage = () => {
   // Tính tổng tiền
   const calculateTotal = () => {
     const subtotal = orderItems.reduce((sum, item) => {
-      return sum + (item.price * item.quantity);
+      return sum + item.price * item.quantity;
     }, 0);
-    
+
     const discount = 0; // Có thể thêm logic giảm giá
     const total = subtotal - discount;
-    
+
     return { subtotal, discount, total };
   };
 
@@ -128,18 +142,20 @@ const OrderFormPage = () => {
   const handleSubmit = async (values) => {
     try {
       // Validate items
-      const validItems = orderItems.filter(item => item.productId && item.quantity > 0);
+      const validItems = orderItems.filter(
+        (item) => item.productId && item.quantity > 0
+      );
       if (validItems.length === 0) {
-        message.error('Vui lòng chọn ít nhất 1 sản phẩm');
+        message.error("Vui lòng chọn ít nhất 1 sản phẩm");
         return;
       }
 
       setSubmitting(true);
       const { subtotal, discount, total } = calculateTotal();
-      
+
       const orderData = {
         ...values,
-        items: validItems.map(item => ({
+        items: validItems.map((item) => ({
           productId: item.productId,
           productName: item.productName,
           quantity: item.quantity,
@@ -148,21 +164,21 @@ const OrderFormPage = () => {
         subtotal,
         discount,
         total,
-        status: 'pending',
-        paymentStatus: 'pending',
+        status: "pending",
+        paymentStatus: "pending",
       };
-      
+
       if (isEditing) {
         await updateOrder(id, orderData);
-        message.success('Cập nhật đơn hàng thành công!');
+        message.success("Cập nhật đơn hàng thành công!");
       } else {
         await createOrder(orderData);
-        message.success('Tạo đơn hàng thành công!');
+        message.success("Tạo đơn hàng thành công!");
       }
-      
-      navigate('/orders');
+
+      navigate("/orders");
     } catch (error) {
-      message.error(error.message || 'Có lỗi xảy ra khi lưu đơn hàng');
+      message.error(error.message || "Có lỗi xảy ra khi lưu đơn hàng");
     } finally {
       setSubmitting(false);
     }
@@ -171,20 +187,20 @@ const OrderFormPage = () => {
   // Cấu hình cột cho bảng items
   const itemColumns = [
     {
-      title: 'Sản phẩm',
-      dataIndex: 'productId',
-      key: 'productId',
-      width: '40%',
+      title: "Sản phẩm",
+      dataIndex: "productId",
+      key: "productId",
+      width: "40%",
       render: (value, record) => (
         <Select
           value={value}
           placeholder="Chọn sản phẩm"
-          style={{ width: '100%' }}
-          onChange={(val) => updateItem(record.key, 'productId', val)}
+          style={{ width: "100%" }}
+          onChange={(val) => updateItem(record.key, "productId", val)}
           showSearch
           optionFilterProp="children"
         >
-          {products.map(product => (
+          {products.map((product) => (
             <Option key={product.id} value={product.id}>
               {product.name} - {product.price.toLocaleString()}₫
             </Option>
@@ -193,38 +209,38 @@ const OrderFormPage = () => {
       ),
     },
     {
-      title: 'Số lượng',
-      dataIndex: 'quantity',
-      key: 'quantity',
-      width: '15%',
+      title: "Số lượng",
+      dataIndex: "quantity",
+      key: "quantity",
+      width: "15%",
       render: (value, record) => (
         <InputNumber
           min={1}
           value={value}
-          onChange={(val) => updateItem(record.key, 'quantity', val || 1)}
-          style={{ width: '100%' }}
+          onChange={(val) => updateItem(record.key, "quantity", val || 1)}
+          style={{ width: "100%" }}
         />
       ),
     },
     {
-      title: 'Đơn giá',
-      dataIndex: 'price',
-      key: 'price',
-      width: '20%',
+      title: "Đơn giá",
+      dataIndex: "price",
+      key: "price",
+      width: "20%",
       render: (price) => `${price.toLocaleString()} ₫`,
     },
     {
-      title: 'Thành tiền',
-      key: 'total',
-      width: '20%',
+      title: "Thành tiền",
+      key: "total",
+      width: "20%",
       render: (_, record) => (
         <strong>{(record.price * record.quantity).toLocaleString()} ₫</strong>
       ),
     },
     {
-      title: 'Thao tác',
-      key: 'actions',
-      width: '5%',
+      title: "Thao tác",
+      key: "actions",
+      width: "5%",
       render: (_, record) => (
         <Button
           type="text"
@@ -246,8 +262,12 @@ const OrderFormPage = () => {
   return (
     <div>
       <PageHeader
-        title={isEditing ? 'Chỉnh sửa đơn hàng' : 'Tạo đơn hàng mới'}
-        subtitle={isEditing ? 'Cập nhật thông tin đơn hàng' : 'Nhập thông tin đơn hàng mới'}
+        title={isEditing ? "Chỉnh sửa đơn hàng" : "Tạo đơn hàng mới"}
+        subtitle={
+          isEditing
+            ? "Cập nhật thông tin đơn hàng"
+            : "Nhập thông tin đơn hàng mới"
+        }
         showBack
         backPath="/orders"
       />
@@ -268,7 +288,10 @@ const OrderFormPage = () => {
                     label="Tên khách hàng"
                     name="customerName"
                     rules={[
-                      { required: true, message: 'Vui lòng nhập tên khách hàng!' },
+                      {
+                        required: true,
+                        message: "Vui lòng nhập tên khách hàng!",
+                      },
                     ]}
                   >
                     <Input placeholder="Nhập tên khách hàng" />
@@ -279,8 +302,14 @@ const OrderFormPage = () => {
                     label="Số điện thoại"
                     name="customerPhone"
                     rules={[
-                      { required: true, message: 'Vui lòng nhập số điện thoại!' },
-                      { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại không hợp lệ!' }
+                      {
+                        required: true,
+                        message: "Vui lòng nhập số điện thoại!",
+                      },
+                      {
+                        pattern: /^[0-9]{10,11}$/,
+                        message: "Số điện thoại không hợp lệ!",
+                      },
                     ]}
                   >
                     <Input placeholder="Nhập số điện thoại" />
@@ -290,14 +319,10 @@ const OrderFormPage = () => {
             </Card>
 
             {/* Chi tiết đơn hàng */}
-            <Card 
-              title="Chi tiết đơn hàng" 
+            <Card
+              title="Chi tiết đơn hàng"
               extra={
-                <Button
-                  type="dashed"
-                  icon={<PlusOutlined />}
-                  onClick={addItem}
-                >
+                <Button type="dashed" icon={<PlusOutlined />} onClick={addItem}>
                   Thêm sản phẩm
                 </Button>
               }
@@ -317,7 +342,12 @@ const OrderFormPage = () => {
               <Form.Item
                 label="Phương thức thanh toán"
                 name="paymentMethod"
-                rules={[{ required: true, message: 'Vui lòng chọn phương thức thanh toán!' }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn phương thức thanh toán!",
+                  },
+                ]}
               >
                 <Select placeholder="Chọn phương thức thanh toán">
                   <Option value="cash">Tiền mặt</Option>
@@ -335,27 +365,44 @@ const OrderFormPage = () => {
 
           <Col xs={24} lg={8}>
             {/* Tổng kết đơn hàng */}
-            <Card title="Tổng kết đơn hàng" style={{ position: 'sticky', top: 24 }}>
+            <Card
+              title="Tổng kết đơn hàng"
+              style={{ position: "sticky", top: 24 }}
+            >
               <div style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 8,
+                  }}
+                >
                   <span>Tạm tính:</span>
                   <span>{subtotal.toLocaleString()} ₫</span>
                 </div>
                 {discount > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: 8,
+                    }}
+                  >
                     <span>Giảm giá:</span>
-                    <span style={{ color: '#ff4d4f' }}>-{discount.toLocaleString()} ₫</span>
+                    <span style={{ color: "#ff4d4f" }}>
+                      -{discount.toLocaleString()} ₫
+                    </span>
                   </div>
                 )}
-                <div 
-                  style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    fontSize: 18, 
-                    fontWeight: 'bold',
-                    borderTop: '1px solid #f0f0f0',
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    borderTop: "1px solid #f0f0f0",
                     paddingTop: 8,
-                    color: '#52c41a'
+                    color: "#52c41a",
                   }}
                 >
                   <span>Tổng cộng:</span>
@@ -363,21 +410,21 @@ const OrderFormPage = () => {
                 </div>
               </div>
 
-              <Space style={{ width: '100%' }} direction="vertical">
-                <Button 
-                  type="primary" 
-                  htmlType="submit" 
+              <Space style={{ width: "100%" }} direction="vertical">
+                <Button
+                  type="primary"
+                  htmlType="submit"
                   loading={submitting}
                   icon={<SaveOutlined />}
                   size="large"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                 >
-                  {isEditing ? 'Cập nhật đơn hàng' : 'Tạo đơn hàng'}
+                  {isEditing ? "Cập nhật đơn hàng" : "Tạo đơn hàng"}
                 </Button>
-                <Button 
-                  onClick={() => navigate('/orders')}
+                <Button
+                  onClick={() => navigate("/orders")}
                   size="large"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                 >
                   Hủy
                 </Button>
