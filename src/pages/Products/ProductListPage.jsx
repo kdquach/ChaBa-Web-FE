@@ -302,7 +302,7 @@ const ProductListPage = () => {
             type="text"
             size="small"
             icon={<EyeOutlined />}
-            onClick={() => navigate(`/products/${record.id}`)}
+            onClick={() => navigate(`/products/${record.id}/view`)}
           />
           <Button
             type="text"

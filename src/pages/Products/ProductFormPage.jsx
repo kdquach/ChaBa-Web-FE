@@ -29,8 +29,9 @@ const { Option } = Select;
 
 const ProductFormPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const isEditing = Boolean(id);
+  const { id, mode } = useParams(); // Get mode from URL
+  const isEditing = Boolean(id) && mode === "edit";
+  const isViewing = Boolean(id) && mode === "view";
   const [form] = Form.useForm();
 
   const [loading, setLoading] = useState(false);
@@ -40,9 +41,7 @@ const ProductFormPage = () => {
 
   // Load dữ liệu khi edit
   useEffect(() => {
-    if (isEditing) {
-      loadProduct();
-    }
+    loadProduct();
     loadCategories();
   }, [id, isEditing]);
 
@@ -158,9 +157,17 @@ const ProductFormPage = () => {
   return (
     <div>
       <PageHeader
-        title={isEditing ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
+        title={
+          isViewing
+            ? "Chi tiết sản phẩm"
+            : isEditing
+            ? "Chỉnh sửa sản phẩm"
+            : "Thêm sản phẩm mới"
+        }
         subtitle={
-          isEditing
+          isViewing
+            ? "Xem thông tin chi tiết sản phẩm"
+            : isEditing
             ? "Cập nhật thông tin sản phẩm"
             : "Nhập thông tin sản phẩm mới"
         }
@@ -186,13 +193,9 @@ const ProductFormPage = () => {
                 name="name"
                 rules={[
                   { required: true, message: "Vui lòng nhập tên sản phẩm!" },
-                  {
-                    max: 100,
-                    message: "Tên sản phẩm không được vượt quá 100 ký tự!",
-                  },
                 ]}
               >
-                <Input placeholder="Nhập tên sản phẩm" />
+                <Input placeholder="Nhập tên sản phẩm" disabled={isViewing} />
               </Form.Item>
 
               <Form.Item
@@ -200,12 +203,12 @@ const ProductFormPage = () => {
                 name="description"
                 rules={[
                   { required: true, message: "Vui lòng nhập mô tả sản phẩm!" },
-                  { max: 500, message: "Mô tả không được vượt quá 500 ký tự!" },
                 ]}
               >
                 <TextArea
                   rows={4}
-                  placeholder="Nhập mô tả chi tiết về sản phẩm"
+                  placeholder="Nhập mô tả chi tiết"
+                  disabled={isViewing}
                 />
               </Form.Item>
 
@@ -213,13 +216,14 @@ const ProductFormPage = () => {
                 <Col xs={24} sm={12}>
                   <Form.Item
                     label="Danh mục"
-                    name="categoryId" // Đổi từ category thành categoryId để match với API
+                    name="categoryId"
                     rules={[
                       { required: true, message: "Vui lòng chọn danh mục!" },
                     ]}
                   >
                     <Select
-                      placeholder="Chọn danh mục sản phẩm"
+                      placeholder="Chọn danh mục"
+                      disabled={isViewing}
                       showSearch
                       optionFilterProp="children"
                     >
@@ -238,16 +242,12 @@ const ProductFormPage = () => {
                     name="price"
                     rules={[
                       { required: true, message: "Vui lòng nhập giá bán!" },
-                      {
-                        type: "number",
-                        min: 1000,
-                        message: "Giá bán phải ít nhất 1,000 ₫!",
-                      },
                     ]}
                   >
                     <InputNumber
                       style={{ width: "100%" }}
                       placeholder="Nhập giá bán"
+                      disabled={isViewing}
                       formatter={(value) =>
                         `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                       }
@@ -262,7 +262,10 @@ const ProductFormPage = () => {
                 name="recipe"
                 tooltip="Nhập các nguyên liệu, cách nhau bằng dấu phẩy"
               >
-                <Input placeholder="Ví dụ: Trà đen, Sữa tươi, Đường" />
+                <Input
+                  placeholder="Ví dụ: Trà đen, Sữa tươi, Đường"
+                  disabled={isViewing}
+                />
               </Form.Item>
 
               <Form.Item
@@ -277,20 +280,25 @@ const ProductFormPage = () => {
                 <Switch
                   checkedChildren="Đang bán"
                   unCheckedChildren="Ngừng bán"
+                  disabled={isViewing}
                 />
               </Form.Item>
 
               <Form.Item style={{ marginBottom: 0 }}>
                 <Space>
-                  <Button onClick={() => navigate("/products")}>Hủy</Button>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    loading={submitting}
-                    icon={<SaveOutlined />}
-                  >
-                    {isEditing ? "Cập nhật" : "Tạo sản phẩm"}
+                  <Button onClick={() => navigate("/products")}>
+                    {isViewing ? "Quay lại" : "Hủy"}
                   </Button>
+                  {!isViewing && (
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={submitting}
+                      icon={<SaveOutlined />}
+                    >
+                      {isEditing ? "Cập nhật" : "Tạo sản phẩm"}
+                    </Button>
+                  )}
                 </Space>
               </Form.Item>
             </Form>
@@ -299,24 +307,39 @@ const ProductFormPage = () => {
 
         <Col xs={24} lg={8}>
           <Card title="Hình ảnh sản phẩm">
-            <Upload
-              listType="picture-card"
-              fileList={fileList}
-              onChange={handleUpload}
-              beforeUpload={beforeUpload}
-              maxCount={1}
-            >
-              {fileList.length < 1 && (
-                <div>
-                  <UploadOutlined />
-                  <div style={{ marginTop: 8 }}>Tải lên hình ảnh</div>
-                </div>
-              )}
-            </Upload>
-            <div style={{ fontSize: 12, color: "#888", marginTop: 8 }}>
-              * Chỉ hỗ trợ định dạng JPG, PNG
-              <br />* Kích thước tối đa 2MB
-            </div>
+            {isViewing ? (
+              // In view mode, just show the image
+              fileList.length > 0 && (
+                <img
+                  src={fileList[0].url}
+                  alt="Product"
+                  style={{ width: "100%", maxWidth: 300 }}
+                />
+              )
+            ) : (
+              // In edit/create mode, show upload component
+              <Upload
+                listType="picture-card"
+                fileList={fileList}
+                onChange={handleUpload}
+                beforeUpload={beforeUpload}
+                maxCount={1}
+                disabled={isViewing}
+              >
+                {fileList.length < 1 && (
+                  <div>
+                    <UploadOutlined />
+                    <div style={{ marginTop: 8 }}>Tải lên hình ảnh</div>
+                  </div>
+                )}
+              </Upload>
+            )}
+            {!isViewing && (
+              <div style={{ fontSize: 12, color: "#888", marginTop: 8 }}>
+                * Chỉ hỗ trợ định dạng JPG, PNG
+                <br />* Kích thước tối đa 2MB
+              </div>
+            )}
           </Card>
         </Col>
       </Row>
