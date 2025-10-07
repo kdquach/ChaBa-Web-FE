@@ -10,7 +10,6 @@ import apiClient from "./client";
 export const login = async (credentials) => {
   try {
     const data = await apiClient.post("/auth/login", credentials);
-    console.log(data);
     if (!data) {
       throw new Error("No data received from server");
     }
