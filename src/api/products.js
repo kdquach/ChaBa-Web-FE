@@ -20,7 +20,7 @@ export const fetchProducts = async (params) => {
  * @returns {Promise<Object>} - Thông tin chi tiết sản phẩm
  */
 export const fetchProductById = async (productId) => {
-  const { data } = await apiClient.get(`/products/${productId}`);
+  const data = await apiClient.get(`/products/${productId}`);
   return data;
 };
 
@@ -34,25 +34,67 @@ export const fetchProductById = async (productId) => {
  * @param {string} [productData.image] - URL ảnh sản phẩm
  * @returns {Promise<Object>} - Thông tin sản phẩm đã tạo
  */
-export const createProduct = async (productData) => {
-  const { data } = await apiClient.post("/products", productData);
-  return data;
+export const createProduct = async (data) => {
+  const formData = new FormData();
+  formData.append("name", data.name);
+  formData.append("price", data.price);
+  formData.append("categoryId", data.categoryId);
+  formData.append("status", data.status);
+  if (data.description) {
+    formData.append("description", data.description);
+  }
+
+  if (data.image && data.image.originFileObj) {
+    formData.append("image", data.image.originFileObj); // gửi file binary
+  }
+
+  const res = await apiClient.post("/products", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res;
 };
 
 /**
  * Cập nhật thông tin sản phẩm
  * @param {string} productId - ID sản phẩm
- * @param {Object} productData - Dữ liệu cập nhật
- * @param {string} [productData.name] - Tên sản phẩm
- * @param {string} [productData.description] - Mô tả sản phẩm
- * @param {number} [productData.price] - Giá sản phẩm
- * @param {string} [productData.category] - Danh mục sản phẩm
- * @param {string} [productData.image] - URL ảnh sản phẩm
+ * @param {Object} data - Dữ liệu cập nhật
+ * @param {string} [data.name] - Tên sản phẩm
+ * @param {number} [data.price] - Giá sản phẩm
+ * @param {string} [data.categoryId] - ID danh mục sản phẩm
+ * @param {string} [data.status] - Trạng thái sản phẩm
+ * @param {string} [data.description] - Mô tả sản phẩm
+ * @param {File} [data.image] - File ảnh sản phẩm
  * @returns {Promise<Object>} - Thông tin sản phẩm đã cập nhật
  */
-export const updateProduct = async (productId, productData) => {
-  const { data } = await apiClient.put(`/products/${productId}`, productData);
-  return data;
+export const updateProduct = async (productId, data) => {
+  try {
+    const formData = new FormData();
+
+    // Append text fields if they exist
+    if (data.name) formData.append("name", data.name);
+    if (data.price) formData.append("price", data.price);
+    if (data.categoryId) formData.append("categoryId", data.categoryId);
+    if (data.status) formData.append("status", data.status);
+    if (data.description) formData.append("description", data.description);
+
+    // Handle image update
+    if (data.image && data.image.originFileObj) {
+      formData.append("image", data.image.originFileObj);
+    }
+
+    const response = await apiClient.patch(`/products/${productId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error updating product:", error);
+    throw error;
+  }
 };
 
 /**
@@ -80,6 +122,5 @@ export const fetchCategories = async () => {
  */
 export const fetchIngredients = async () => {
   const data = await apiClient.get("/ingredients");
-  console.log("fetchIngredients data:", data); // 🔥 debug
   return data;
 };

@@ -11,6 +11,7 @@ import {
   Card,
   Row,
   Col,
+  Space,
 } from "antd";
 import { UploadOutlined, SaveOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
@@ -48,24 +49,31 @@ const ProductFormPage = () => {
   const loadProduct = async () => {
     try {
       setLoading(true);
-      const product = await getProduct(id);
+      const response = await fetchProductById(id);
+      console.log("Fetched product data:", response); // 🔥 debug
+      // Set các giá trị form từ response
       form.setFieldsValue({
-        ...product,
-        ingredients: product.ingredients ? product.ingredients.join(", ") : "",
+        name: response.name,
+        price: response.price,
+        status: response.status,
+        description: response.description,
+        categoryId: response.categoryId,
+        // Không cần xử lý ingredients vì API không trả về field này
       });
 
       // Set image to fileList if exists
-      if (product.image) {
+      if (response.image) {
         setFileList([
           {
-            uid: "1",
+            uid: "-1",
             name: "product-image",
             status: "done",
-            url: product.image,
+            url: response.image, // Sử dụng trực tiếp URL từ API
           },
         ]);
       }
     } catch (error) {
+      console.error("Error loading product:", error);
       message.error("Không thể tải thông tin sản phẩm");
       navigate("/products");
     } finally {
@@ -76,7 +84,12 @@ const ProductFormPage = () => {
   const loadCategories = async () => {
     try {
       const response = await fetchCategories();
-      setCategories(response);
+      if (response?.results) {
+        setCategories(response.results);
+      } else {
+        console.error("Invalid categories response format:", response);
+        setCategories([]);
+      }
     } catch (error) {
       console.error("Error loading categories:", error);
     }
@@ -106,31 +119,21 @@ const ProductFormPage = () => {
     try {
       setSubmitting(true);
 
-      // Xử lý ingredients thành array
-      const ingredients = values.ingredients
-        ? values.ingredients
+      // Xử lý recipe thành array
+      const recipe = values.recipe
+        ? values.recipe
             .split(",")
             .map((item) => item.trim())
             .filter(Boolean)
         : [];
 
-      // Xử lý image URL (giả lập - trong thực tế sẽ upload lên server)
-      let imageUrl = "";
-      if (fileList.length > 0) {
-        if (fileList[0].url) {
-          imageUrl = fileList[0].url;
-        } else {
-          // Mock URL cho ảnh mới upload
-          imageUrl =
-            "https://images.pexels.com/photos/2346080/pexels-photo-2346080.jpeg?auto=compress&cs=tinysrgb&w=400";
-        }
-      }
-
       const productData = {
         ...values,
-        ingredients,
-        image: imageUrl,
+        recipe,
+        image: fileList[0],
       };
+
+      console.log("Submitting product data:", productData); // 🔥 debug
 
       if (isEditing) {
         await updateProduct(id, productData);
@@ -174,7 +177,7 @@ const ProductFormPage = () => {
               onFinish={handleSubmit}
               autoComplete="off"
               initialValues={{
-                status: "active",
+                status: "Đang bán",
                 price: 0,
               }}
             >
@@ -210,7 +213,7 @@ const ProductFormPage = () => {
                 <Col xs={24} sm={12}>
                   <Form.Item
                     label="Danh mục"
-                    name="category"
+                    name="categoryId" // Đổi từ category thành categoryId để match với API
                     rules={[
                       { required: true, message: "Vui lòng chọn danh mục!" },
                     ]}
@@ -221,14 +224,10 @@ const ProductFormPage = () => {
                       optionFilterProp="children"
                     >
                       {categories.map((category) => (
-                        <Option key={category} value={category}>
-                          {category}
+                        <Option key={category.id} value={category.id}>
+                          {category.name}
                         </Option>
                       ))}
-                      <Option value="Trà Sữa">Trà Sữa</Option>
-                      <Option value="Trà Oolong">Trà Oolong</Option>
-                      <Option value="Trà Xanh">Trà Xanh</Option>
-                      <Option value="Nước Ép">Nước Ép</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -260,7 +259,7 @@ const ProductFormPage = () => {
 
               <Form.Item
                 label="Nguyên liệu chính"
-                name="ingredients"
+                name="recipe"
                 tooltip="Nhập các nguyên liệu, cách nhau bằng dấu phẩy"
               >
                 <Input placeholder="Ví dụ: Trà đen, Sữa tươi, Đường" />
@@ -271,9 +270,9 @@ const ProductFormPage = () => {
                 name="status"
                 valuePropName="checked"
                 getValueFromEvent={(checked) =>
-                  checked ? "active" : "inactive"
+                  checked ? "Đang bán" : "Ngừng bán"
                 }
-                getValueProps={(value) => ({ checked: value === "active" })}
+                getValueProps={(value) => ({ checked: value === "Đang bán" })}
               >
                 <Switch
                   checkedChildren="Đang bán"

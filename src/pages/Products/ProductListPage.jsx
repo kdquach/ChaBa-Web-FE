@@ -267,20 +267,6 @@ const ProductListPage = () => {
       ),
     },
     {
-      title: "Toppings",
-      dataIndex: "toppings",
-      key: "toppings",
-      render: (toppings) => (
-        <Space wrap>
-          {toppings?.map((topping) => (
-            <Tag key={topping._id}>
-              {topping.name} (+{topping.price.toLocaleString()}đ)
-            </Tag>
-          ))}
-        </Space>
-      ),
-    },
-    {
       title: "Công thức",
       dataIndex: "recipe",
       key: "recipe",
