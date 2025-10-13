@@ -1,26 +1,26 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Spin } from "antd";
-import { useAuth } from "../hooks/useAuth";
-import ProtectedRoute from "./ProtectedRoute";
-import PublicRoute from "./PublicRoute";
-import MainLayout from "../layouts/MainLayout";
-import AuthLayout from "../layouts/AuthLayout";
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Spin } from 'antd';
+import { useAuth } from '../hooks/useAuth';
+import ProtectedRoute from './ProtectedRoute';
+import PublicRoute from './PublicRoute';
+import MainLayout from '../layouts/MainLayout';
+import AuthLayout from '../layouts/AuthLayout';
 
 // Import pages
-import LoginPage from "../pages/Auth/LoginPage";
-import DashboardPage from "../pages/Dashboard/DashboardPage";
-import ProductListPage from "../pages/Products/ProductListPage";
-import ProductFormPage from "../pages/Products/ProductFormPage";
-import OrderListPage from "../pages/Orders/OrderListPage";
-import OrderDetailPage from "../pages/Orders/OrderDetailPage";
-import OrderFormPage from "../pages/Orders/OrderFormPage";
-import UserListPage from "../pages/Users/UserListPage";
-import UserFormPage from "../pages/Users/UserFormPage";
-import IngredientListPage from "../pages/Ingredients/IngredientListPage";
-import IngredientFormPage from "../pages/Ingredients/IngredientFormPage";
-import ToppingListPage from "../pages/Toppings/ToppingListPage";
-import ToppingFormPage from "../pages/Toppings/ToppingFormPage";
+import LoginPage from '../pages/Auth/LoginPage';
+import DashboardPage from '../pages/Dashboard/DashboardPage';
+import ProductListPage from '../pages/Products/ProductListPage';
+import ProductFormPage from '../pages/Products/ProductFormPage';
+import OrderListPage from '../pages/Orders/OrderListPage';
+import OrderDetailPage from '../pages/Orders/OrderDetailPage';
+import OrderFormPage from '../pages/Orders/OrderFormPage';
+import UserListPage from '../pages/Users/UserListPage';
+import UserFormPage from '../pages/Users/UserFormPage';
+import IngredientListPage from '../pages/Ingredients/IngredientListPage';
+import IngredientFormPage from '../pages/Ingredients/IngredientFormPage';
+import ToppingListPage from '../pages/Toppings/ToppingListPage';
+import ToppingFormPage from '../pages/Toppings/ToppingFormPage';
 
 const AppRoutes = () => {
   const { loading } = useAuth();
@@ -30,10 +30,10 @@ const AppRoutes = () => {
     return (
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
         }}
       >
         <Spin size="large" tip="Đang tải..." />
@@ -88,6 +88,10 @@ const AppRoutes = () => {
         <Route path="ingredients" element={<IngredientListPage />} />
         <Route path="ingredients/new" element={<IngredientFormPage />} />
         <Route path="ingredients/:id/edit" element={<IngredientFormPage />} />
+        <Route
+          path="/ingredients/:id/view"
+          element={<IngredientFormPage isView />}
+        />
 
         {/* Quản lý topping */}
         <Route path="toppings" element={<ToppingListPage />} />
