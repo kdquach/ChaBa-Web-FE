@@ -1,38 +1,72 @@
-import React, { useState } from "react";
-import { Form, Input, Button, Alert } from "antd";
-import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { Form, Input, Button, Alert, message, Divider } from "antd";
+import { UserOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../../hooks/useAuth";
+import AuthLayout from "../../layouts/AuthLayout";
 
 const LoginPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Lấy đường dẫn mà user muốn truy cập trước khi login
   const from = location.state?.from?.pathname || "/";
 
+  useEffect(() => {
+    if (location.state?.message) {
+      message.success(location.state.message);
+      // Clear the state after showing message
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state, navigate]);
+
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
       setError("");
 
-      const result = await login(values);
-
-      if (result) {
-        navigate(from, { replace: true });
-      } else {
-        setError(result.error);
-      }
+      await login(values);
+      navigate(from, { replace: true });
     } catch (err) {
-      setError("Đã có lỗi xảy ra, vui lòng thử lại");
+      setError(err.message || "Đã có lỗi xảy ra, vui lòng thử lại");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Xử lý Google Login success
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setGoogleLoading(true);
+      setError("");
+
+      // Gửi id_token (credential) tới backend
+      await loginWithGoogle({
+        token: credentialResponse.credential, // Backend yêu cầu field "token"
+      });
+
+      message.success("Đăng nhập Google thành công!");
+      navigate(from, { replace: true });
+    } catch (err) {
+      console.error("Google login error:", err);
+      setError(err.message || "Đăng nhập Google thất bại");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  // Xử lý Google Login error
+  const handleGoogleError = () => {
+    console.error("Google login failed");
+    setError("Đăng nhập Google thất bại");
+    setGoogleLoading(false);
   };
 
   return (
@@ -100,6 +134,34 @@ const LoginPage = () => {
           </Button>
         </Form.Item>
       </Form>
+
+      <Divider style={{ margin: "16px 0" }}>Hoặc</Divider>
+
+      <div style={{ marginBottom: 16 }}>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+          theme="filled_blue"
+          size="large"
+          width="100%"
+          text="signin_with"
+          shape="rectangular"
+          logo_alignment="left"
+          loading={googleLoading}
+        />
+      </div>
+
+      <Button
+        type="default"
+        onClick={() => navigate("/register")}
+        style={{
+          width: "100%",
+          height: 44,
+          fontSize: 16,
+        }}
+      >
+        Đăng ký tài khoản mới
+      </Button>
 
       <div
         style={{

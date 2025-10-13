@@ -9,6 +9,7 @@ import AuthLayout from "../layouts/AuthLayout";
 
 // Import pages
 import LoginPage from "../pages/Auth/LoginPage";
+import RegisterPage from "../pages/Auth/RegisterPage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
 import ProductListPage from "../pages/Products/ProductListPage";
 import ProductFormPage from "../pages/Products/ProductFormPage";
@@ -21,6 +22,7 @@ import IngredientListPage from "../pages/Ingredients/IngredientListPage";
 import IngredientFormPage from "../pages/Ingredients/IngredientFormPage";
 import ToppingListPage from "../pages/Toppings/ToppingListPage";
 import ToppingFormPage from "../pages/Toppings/ToppingFormPage";
+import GoogleCallback from "../pages/Auth/GoogleCallback";
 
 const AppRoutes = () => {
   const { loading } = useAuth();
@@ -54,6 +56,17 @@ const AppRoutes = () => {
           </PublicRoute>
         }
       />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <AuthLayout>
+              <RegisterPage />
+            </AuthLayout>
+          </PublicRoute>
+        }
+      />
+      <Route path="/auth/google/callback" element={<GoogleCallback />} />
 
       {/* Routes được bảo vệ - cần đăng nhập */}
       <Route
