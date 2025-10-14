@@ -131,7 +131,7 @@ export const loginWithGoogle = async (googleData) => {
     });
 
     if (!data) {
-      throw new Error("No data received from server");
+      throw new Error("No data received from serverr");
     }
 
     return data;
