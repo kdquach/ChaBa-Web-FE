@@ -105,7 +105,7 @@ const AppRoutes = () => {
         {/* Quản lý topping */}
         <Route path="toppings" element={<ToppingListPage />} />
         <Route path="toppings/new" element={<ToppingFormPage />} />
-        <Route path="toppings/:id/edit" element={<ToppingFormPage />} />
+        <Route path="toppings/:id/:mode" element={<ToppingFormPage />} />
       </Route>
 
       {/* Route mặc định - chuyển hướng về dashboard */}
