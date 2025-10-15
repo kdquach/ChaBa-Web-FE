@@ -1,98 +1,184 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Tag, Input, Select, message, Modal, Card, Image } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import PageHeader from '../../components/PageHeader';
-import LoadingSpinner from '../../components/LoadingSpinner';
-import { getToppings, deleteTopping } from '../../api/toppings';
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Table,
+  Button,
+  Space,
+  Tag,
+  Select,
+  Image,
+  Input,
+  message,
+  Modal,
+  Card,
+  Switch, // Thêm Switch cho isAvailable
+} from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import PageHeader from "../../components/PageHeader";
+import LoadingSpinner from "../../components/LoadingSpinner";
+import {
+  getAllToppings, // Đã sửa API
+  deleteTopping, // Đã sửa API
+} from "../../api/toppings"; // Đã sửa API
 
 const { Search } = Input;
-const { Option } = Select;
 const { confirm } = Modal;
 
 const ToppingListPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [toppings, setToppings] = useState([]);
+  const [toppings, setToppings] = useState([]); // Đã đổi tên state
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
   });
   const [filters, setFilters] = useState({
-    search: '',
-    status: '',
+    search: "",
+    isAvailable: null, // Chỉ cần isAvailable, không cần category/status
   });
 
+  const [allToppings, setAllToppings] = useState([]); // Thêm state mới để lưu toàn bộ sản phẩm
+
   // Load dữ liệu
-  const loadData = async (params = {}) => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const queryParams = {
-        page: pagination.current,
-        limit: pagination.pageSize,
-        ...filters,
-        ...params,
-      };
-      
-      const response = await getToppings(queryParams);
-      setToppings(response.data);
-      setPagination(prev => ({
-        ...prev,
-        total: response.pagination.total,
-        current: response.pagination.current,
-      }));
+      const response = await getAllToppings(); // Gọi API Topping
+      setAllToppings(response.results); // Lưu toàn bộ dữ liệu
+      handleFilterAndPagination(response.results); // Xử lý filter và phân trang
     } catch (error) {
-      message.error('Không thể tải danh sách topping');
+      message.error("Không thể tải danh sách toppings");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Thêm hàm xử lý filter và phân trang
+  const handleFilterAndPagination = (data = allToppings) => {
+    let filteredData = [...data];
+
+    // Xử lý tìm kiếm theo tên
+    if (filters.search) {
+      filteredData = filteredData.filter((item) =>
+        item.name.toLowerCase().includes(filters.search.toLowerCase())
+      );
+    }
+
+    // Xử lý lọc theo trạng thái isAvailable (true/false)
+    if (filters.isAvailable !== null) {
+      filteredData = filteredData.filter(
+        (item) => item.isAvailable === filters.isAvailable
+      );
+    }
+
+    // Tính toán phân trang
+    const { current, pageSize } = pagination;
+    const start = (current - 1) * pageSize;
+    const end = start + pageSize;
+
+    // Cập nhật state
+    setToppings(filteredData.slice(start, end));
+    setPagination((prev) => ({
+      ...prev,
+      total: filteredData.length,
+    }));
   };
 
   useEffect(() => {
     loadData();
   }, []);
 
-  // Xử lý thay đổi pagination
-  const handleTableChange = (newPagination) => {
+  // Thêm useEffect để xử lý filter khi filters thay đổi
+  useEffect(() => {
+    if (allToppings.length > 0) {
+      handleFilterAndPagination();
+    }
+  }, [filters, pagination.current, pagination.pageSize]);
+
+  // Xử lý thay đổi pagination + sort
+  const handleTableChange = (newPagination, _, sorter) => {
     setPagination(newPagination);
-    loadData({
-      page: newPagination.current,
-      limit: newPagination.pageSize,
-    });
+
+    let sortedData = [...allToppings];
+
+    if (sorter && sorter.field) {
+      sortedData.sort((a, b) => {
+        let valueA = a[sorter.field];
+        let valueB = b[sorter.field];
+
+        // Nếu là string (ví dụ: name)
+        if (typeof valueA === "string") {
+          valueA = valueA.toLowerCase();
+          valueB = valueB.toLowerCase();
+          return sorter.order === "ascend"
+            ? valueA.localeCompare(valueB)
+            : valueB.localeCompare(valueA);
+        }
+
+        // Nếu là số (ví dụ: price)
+        if (typeof valueA === "number") {
+          return sorter.order === "ascend" ? valueA - valueB : valueB - valueA;
+        }
+
+        // Nếu là boolean (isAvailable)
+        if (typeof valueA === "boolean") {
+          return sorter.order === "ascend"
+            ? valueA === valueB
+              ? 0
+              : valueA
+              ? -1
+              : 1 // true trước false
+            : valueA === valueB
+            ? 0
+            : valueA
+            ? 1
+            : -1; // false trước true
+        }
+
+        return 0;
+      });
+    }
+
+    // Sau khi sort thì vẫn phải filter và phân trang
+    handleFilterAndPagination(sortedData);
   };
 
   // Xử lý tìm kiếm
   const handleSearch = (value) => {
     const newFilters = { ...filters, search: value };
     setFilters(newFilters);
-    setPagination(prev => ({ ...prev, current: 1 }));
-    loadData({ ...newFilters, page: 1 });
+    setPagination((prev) => ({ ...prev, current: 1 }));
   };
 
   // Xử lý lọc
   const handleFilter = (key, value) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
-    setPagination(prev => ({ ...prev, current: 1 }));
-    loadData({ ...newFilters, page: 1 });
+    setPagination((prev) => ({ ...prev, current: 1 }));
   };
 
   // Xử lý xóa topping
   const handleDelete = (record) => {
     confirm({
-      title: 'Xác nhận xóa topping',
+      title: "Xác nhận xóa Topping",
       content: `Bạn có chắc chắn muốn xóa topping "${record.name}"?`,
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
       onOk: async () => {
         try {
-          await deleteTopping(record.id);
-          message.success('Xóa topping thành công');
+          await deleteTopping(record.id); // Gọi API deleteTopping
+          message.success("Xóa topping thành công");
           loadData();
         } catch (error) {
-          message.error(error.message || 'Không thể xóa topping');
+          message.error(error.message || "Không thể xóa topping");
         }
       },
     });
@@ -101,80 +187,59 @@ const ToppingListPage = () => {
   // Cấu hình cột table
   const columns = [
     {
-      title: 'Hình ảnh',
-      dataIndex: 'image',
-      key: 'image',
+      title: "Hình ảnh",
+      dataIndex: "image",
+      key: "image",
       width: 80,
-      render: (image, record) => (
+      render: (image) => (
         <Image
           width={60}
           height={60}
           src={image}
-          alt={record.name}
-          style={{ objectFit: 'cover', borderRadius: 4 }}
+          alt="topping"
+          style={{ objectFit: "cover", borderRadius: 4 }}
           fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN..."
         />
       ),
     },
     {
-      title: 'Tên topping',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Tên Topping",
+      dataIndex: "name",
+      key: "name",
       sorter: true,
-      render: (text, record) => (
-        <div>
-          <div style={{ fontWeight: 500, fontSize: 14 }}>{text}</div>
-          <div style={{ fontSize: 12, color: '#888' }}>{record.description}</div>
-        </div>
-      ),
     },
     {
-      title: 'Giá bán',
-      dataIndex: 'price',
-      key: 'price',
+      title: "Giá bán",
+      dataIndex: "price",
+      key: "price",
       sorter: true,
-      width: 120,
-      render: (price) => (
-        <span style={{ fontWeight: 500, color: '#52c41a' }}>
-          +{price.toLocaleString()} ₫
-        </span>
+      render: (price) => `${price.toLocaleString()} ₫`,
+    },
+    {
+      title: "Trạng thái", // Thay thế cho cột Danh mục
+      dataIndex: "isAvailable",
+      key: "isAvailable",
+      sorter: true,
+      render: (isAvailable) => (
+        <Tag color={isAvailable ? "green" : "red"}>
+          {isAvailable ? "Đang bán" : "Ngừng bán"}
+        </Tag>
       ),
     },
+    // Xóa cột Công thức (recipe)
+
     {
-      title: 'Tồn kho',
-      key: 'stock',
-      width: 120,
-      render: (_, record) => (
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 500 }}>
-            {record.currentStock} {record.unit}
-          </div>
-          <div style={{ fontSize: 11, color: '#888' }}>
-            Tối thiểu: {record.minStock} {record.unit}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        const statusConfig = {
-          active: { color: 'green', text: 'Có sẵn' },
-          low_stock: { color: 'orange', text: 'Sắp hết' },
-          out_of_stock: { color: 'red', text: 'Hết hàng' }
-        };
-        const config = statusConfig[status] || statusConfig.active;
-        return <Tag color={config.color}>{config.text}</Tag>;
-      },
-    },
-    {
-      title: 'Thao tác',
-      key: 'actions',
-      width: 120,
+      title: "Thao tác",
+      key: "actions",
+      width: 150,
       render: (_, record) => (
         <Space size="small">
+          <Button
+            type="text"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => navigate(`/toppings/${record.id}/view`)}
+          />
           <Button
             type="text"
             size="small"
@@ -197,9 +262,9 @@ const ToppingListPage = () => {
     <Button
       type="primary"
       icon={<PlusOutlined />}
-      onClick={() => navigate('/toppings/new')}
+      onClick={() => navigate("/toppings/new")} // Sửa path
     >
-      Thêm topping
+      Thêm Topping
     </Button>
   );
 
@@ -209,9 +274,9 @@ const ToppingListPage = () => {
 
   return (
     <div>
-      <PageHeader 
-        title="Quản lý topping" 
-        subtitle="Danh sách các loại topping để thêm vào đồ uống"
+      <PageHeader
+        title="Quản lý Topping" // Sửa title
+        subtitle="Danh sách tất cả toppings trong hệ thống" // Sửa subtitle
         extra={headerExtra}
       />
 
@@ -219,24 +284,24 @@ const ToppingListPage = () => {
       <Card style={{ marginBottom: 16 }}>
         <Space wrap>
           <Search
-            placeholder="Tìm kiếm topping..."
+            placeholder="Tìm kiếm topping..." // Sửa placeholder
             allowClear
-            enterButton={<SearchOutlined />}
             size="middle"
             style={{ width: 300 }}
-            onSearch={handleSearch}
+            onChange={(e) => handleSearch(e.target.value)}
+            value={filters.search}
           />
-          
+
+          {/* SỬA LỖI: Bộ lọc isAvailable thay thế cho Danh mục */}
           <Select
             placeholder="Trạng thái"
             allowClear
             style={{ width: 120 }}
-            onChange={(value) => handleFilter('status', value)}
-            value={filters.status}
+            onChange={(value) => handleFilter("isAvailable", value)} // Sửa key filter
+            value={filters.isAvailable}
           >
-            <Option value="active">Có sẵn</Option>
-            <Option value="low_stock">Sắp hết</Option>
-            <Option value="out_of_stock">Hết hàng</Option>
+            <Option value={true}>Đang bán</Option>
+            <Option value={false}>Ngừng bán</Option>
           </Select>
         </Space>
       </Card>
