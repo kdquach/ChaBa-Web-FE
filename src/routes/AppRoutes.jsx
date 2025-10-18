@@ -1,11 +1,11 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Spin } from "antd";
-import { useAuth } from "../hooks/useAuth";
-import ProtectedRoute from "./ProtectedRoute";
-import PublicRoute from "./PublicRoute";
-import MainLayout from "../layouts/MainLayout";
-import AuthLayout from "../layouts/AuthLayout";
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Spin } from 'antd';
+import { useAuth } from '../hooks/useAuth';
+import ProtectedRoute from './ProtectedRoute';
+import PublicRoute from './PublicRoute';
+import MainLayout from '../layouts/MainLayout';
+import AuthLayout from '../layouts/AuthLayout';
 
 // Import pages
 import LoginPage from "../pages/Auth/LoginPage";
@@ -23,6 +23,8 @@ import IngredientFormPage from "../pages/Ingredients/IngredientFormPage";
 import ToppingListPage from "../pages/Toppings/ToppingListPage";
 import ToppingFormPage from "../pages/Toppings/ToppingFormPage";
 import GoogleCallback from "../pages/Auth/GoogleCallback";
+import IngredientCategoryListPage from '../pages/IngredientCategory/IngredientCategoryListPage';
+import IngredientCategoryFormPage from '../pages/IngredientCategory/IngredientCategoryFormPage';
 
 const AppRoutes = () => {
   const { loading } = useAuth();
@@ -32,10 +34,10 @@ const AppRoutes = () => {
     return (
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
         }}
       >
         <Spin size="large" tip="Đang tải..." />
@@ -101,10 +103,29 @@ const AppRoutes = () => {
         <Route path="ingredients" element={<IngredientListPage />} />
         <Route path="ingredients/new" element={<IngredientFormPage />} />
         <Route path="ingredients/:id/edit" element={<IngredientFormPage />} />
+        <Route
+          path="/ingredients/:id/view"
+          element={<IngredientFormPage isView />}
+        />
 
         {/* Quản lý topping */}
         <Route path="toppings" element={<ToppingListPage />} />
         <Route path="toppings/new" element={<ToppingFormPage />} />
+        <Route path="toppings/:id/edit" element={<ToppingFormPage />} />
+
+        {/* 🟣 Quản lý loại nguyên liệu (Ingredient Category) */}
+        <Route
+          path="ingredient-categories"
+          element={<IngredientCategoryListPage />}
+        />
+        <Route
+          path="ingredient-categories/new"
+          element={<IngredientCategoryFormPage />}
+        />
+        <Route
+          path="ingredient-categories/:id/edit"
+          element={<IngredientCategoryFormPage />}
+        />
         <Route path="toppings/:id/:mode" element={<ToppingFormPage />} />
       </Route>
 
