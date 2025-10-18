@@ -16,13 +16,13 @@
 }
 
 /* Table customizations */
-.ant-table-thead > tr > th {
+.ant-table-thead>tr>th {
   background: #fafafa;
   font-weight: 600;
 }
 
 /* Form customizations */
-.ant-form-item-label > label {
+.ant-form-item-label>label {
   font-weight: 500;
 }
 
@@ -60,7 +60,7 @@
   .ant-layout-header {
     padding: 0 16px;
   }
-  
+
   .ant-table-wrapper {
     overflow-x: auto;
   }
@@ -78,4 +78,8 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+}
+
+.ant-form-mask {
+  pointer-events: none !important;
 }

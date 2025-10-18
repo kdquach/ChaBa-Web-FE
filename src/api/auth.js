@@ -94,3 +94,49 @@ export const resetPassword = async (resetData) => {
   const response = await apiClient.post("/auth/reset-password", resetData);
   return response;
 };
+
+/**
+ * Đăng ký tài khoản mới
+ * @param {Object} userData - Thông tin đăng ký
+ * @param {string} userData.name - Tên người dùng
+ * @param {string} userData.email - Email
+ * @param {string} userData.phone - Số điện thoại
+ * @param {string} userData.password - Mật khẩu
+ * @returns {Promise<{user: Object, tokens: Object}>} - Thông tin người dùng và token
+ */
+export const register = async (userData) => {
+  try {
+    const data = await apiClient.post("/auth/register", userData);
+    if (!data) {
+      throw new Error("Không nhận được dữ liệu từ server");
+    }
+    return data;
+  } catch (error) {
+    console.error("Registration error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+/**
+ * Đăng nhập bằng Google
+ * @param {Object} googleData - Dữ liệu từ Google
+ * @param {string} googleData.accessToken - Google access token
+ * @param {Object} googleData.userInfo - Thông tin user từ Google
+ * @returns {Promise<{user: Object, tokens: Object}>} - Thông tin người dùng và token
+ */
+export const loginWithGoogle = async (googleData) => {
+  try {
+    const data = await apiClient.post("/auth/google", {
+      token: googleData.token,
+    });
+
+    if (!data) {
+      throw new Error("No data received from server");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Google login error:", error.response?.data || error.message);
+    throw error;
+  }
+};

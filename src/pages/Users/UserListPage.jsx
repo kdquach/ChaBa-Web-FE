@@ -36,7 +36,7 @@ const UserListPage = () => {
         ...filters,
         ...params,
       };
-      
+
       const response = await getUsers(queryParams);
       setUsers(response.data);
       setPagination(prev => ({
@@ -124,8 +124,8 @@ const UserListPage = () => {
       key: 'user',
       render: (_, record) => (
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar 
-            icon={<UserOutlined />} 
+          <Avatar
+            icon={<UserOutlined />}
             style={{ marginRight: 12, backgroundColor: '#52c41a' }}
           />
           <div>
@@ -164,9 +164,9 @@ const UserListPage = () => {
         const roleConfig = {
           admin: { color: 'red', text: 'Quản trị viên' },
           staff: { color: 'blue', text: 'Nhân viên' },
-          customer: { color: 'green', text: 'Khách hàng' }
+          user: { color: 'green', text: 'Khách hàng' }
         };
-        const config = roleConfig[role] || roleConfig.customer;
+        const config = roleConfig[role] || roleConfig.user;
         return <Tag color={config.color}>{config.text}</Tag>;
       },
     },
@@ -230,8 +230,8 @@ const UserListPage = () => {
 
   return (
     <div>
-      <PageHeader 
-        title="Quản lý người dùng" 
+      <PageHeader
+        title="Quản lý người dùng"
         subtitle="Danh sách nhân viên và khách hàng trong hệ thống"
         extra={headerExtra}
       />
@@ -247,7 +247,7 @@ const UserListPage = () => {
             style={{ width: 300 }}
             onSearch={handleSearch}
           />
-          
+
           <Select
             placeholder="Loại người dùng"
             allowClear
@@ -256,9 +256,9 @@ const UserListPage = () => {
             value={filters.type}
           >
             <Option value="staff">Nhân viên</Option>
-            <Option value="customer">Khách hàng</Option>
+            <Option value="user">Khách hàng</Option>
           </Select>
-          
+
           <Select
             placeholder="Vai trò"
             allowClear
@@ -268,9 +268,9 @@ const UserListPage = () => {
           >
             <Option value="admin">Quản trị viên</Option>
             <Option value="staff">Nhân viên</Option>
-            <Option value="customer">Khách hàng</Option>
+            <Option value="user">Khách hàng</Option>
           </Select>
-          
+
           <Select
             placeholder="Trạng thái"
             allowClear

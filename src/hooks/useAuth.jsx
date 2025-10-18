@@ -7,7 +7,12 @@ import {
   clearAuth,
   getUser as getStoredUser,
 } from "../utils/auth";
-import * as authAPI from "../api/auth";
+import {
+  login as loginAPI,
+  register as registerAPI,
+  verifyToken,
+  loginWithGoogle as googleLoginAPI,
+} from "../api/auth";
 
 const AuthContext = createContext(null);
 
@@ -30,7 +35,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           // Verify token với server
-          const response = await authAPI.verifyToken();
+          const response = await verifyToken();
           if (response?.user) {
             setUser(response.user);
             setStoredUser(response.user);
@@ -53,8 +58,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       setLoading(true);
-      const response = await authAPI.login(credentials);
-      console.log(response);
+      const response = await loginAPI(credentials);
+
       if (!response?.user || !response?.tokens?.access?.token) {
         throw new Error("Invalid response format");
       }
@@ -67,8 +72,43 @@ export const AuthProvider = ({ children }) => {
       message.success("Đăng nhập thành công!");
       return { success: true };
     } catch (error) {
-      message.error(error.message || "Đăng nhập thất bại");
-      return { success: false, error: error.message };
+      console.error("Login error:", error);
+
+      // Lấy thông điệp lỗi chi tiết từ backend (nếu có)
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Đăng nhập thất bại. Vui lòng thử lại.";
+
+      // Hiển thị thông báo lỗi ra màn hình
+      message.error(errorMessage);
+
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Đăng ký
+  const register = async (userData) => {
+    try {
+      setLoading(true);
+      const response = await registerAPI(userData);
+
+      if (!response?.user) {
+        throw new Error("Invalid registration response format");
+      }
+
+      // KHÔNG lưu token và user vào localStorage
+      // KHÔNG set user state
+      // Chỉ trả về response để component biết đăng ký thành công
+
+      return response;
+    } catch (error) {
+      console.error("Registration error:", error);
+      const errorMessage =
+        error.response?.data?.message || error.message || "Đăng ký thất bại";
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -92,9 +132,40 @@ export const AuthProvider = ({ children }) => {
     setStoredUser(newUserData);
   };
 
+  // Cập nhật hàm đăng nhập bằng Google
+  const loginWithGoogle = async (googleData) => {
+    try {
+      setLoading(true);
+      const response = await googleLoginAPI(googleData);
+
+      if (!response?.user || !response?.tokens?.access?.token) {
+        throw new Error("Invalid Google login response format");
+      }
+
+      // Lưu thông tin người dùng và token
+      setUser(response.user);
+      setStoredUser(response.user);
+      setTokens(response.tokens);
+
+      return response;
+    } catch (error) {
+      console.error("Google login error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Đăng nhập Google thất bại";
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cập nhật context value
   const value = {
     user,
     login,
+    register,
+    loginWithGoogle, // Đảm bảo có trong context
     logout,
     updateUser,
     loading,

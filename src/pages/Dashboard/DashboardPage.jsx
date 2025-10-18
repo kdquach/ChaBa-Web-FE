@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Statistic, Table, Tag, Progress, Alert } from "antd";
+import React, { useState, useEffect } from 'react';
+import { Row, Col, Card, Statistic, Table, Tag, Progress, Alert } from 'antd';
 import {
   ShoppingOutlined,
   OrderedListOutlined,
@@ -7,12 +7,12 @@ import {
   DollarOutlined,
   TeamOutlined,
   WarningOutlined,
-} from "@ant-design/icons";
-import PageHeader from "../../components/PageHeader";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import { getOrderStats } from "../../api/orders";
-import { getUserStats } from "../../api/users";
-import { getStockAlerts } from "../../api/ingredients";
+} from '@ant-design/icons';
+import PageHeader from '../../components/PageHeader';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import { getOrderStats } from '../../api/orders';
+import { getUserStats } from '../../api/users';
+// import { getStockAlerts } from "../../api/ingredients";
 
 const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
@@ -23,55 +23,55 @@ const DashboardPage = () => {
   // Mock dữ liệu gần đây
   const recentOrders = [
     {
-      key: "1",
-      orderNumber: "ORD001",
-      customer: "Nguyễn Văn A",
+      key: '1',
+      orderNumber: 'ORD001',
+      customer: 'Nguyễn Văn A',
       total: 85000,
-      status: "completed",
+      status: 'completed',
     },
     {
-      key: "2",
-      orderNumber: "ORD002",
-      customer: "Trần Thị B",
+      key: '2',
+      orderNumber: 'ORD002',
+      customer: 'Trần Thị B',
       total: 30000,
-      status: "processing",
+      status: 'processing',
     },
     {
-      key: "3",
-      orderNumber: "ORD003",
-      customer: "Lê Văn C",
+      key: '3',
+      orderNumber: 'ORD003',
+      customer: 'Lê Văn C',
       total: 93000,
-      status: "pending",
+      status: 'pending',
     },
   ];
 
   const recentOrderColumns = [
     {
-      title: "Mã đơn hàng",
-      dataIndex: "orderNumber",
-      key: "orderNumber",
+      title: 'Mã đơn hàng',
+      dataIndex: 'orderNumber',
+      key: 'orderNumber',
     },
     {
-      title: "Khách hàng",
-      dataIndex: "customer",
-      key: "customer",
+      title: 'Khách hàng',
+      dataIndex: 'customer',
+      key: 'customer',
     },
     {
-      title: "Tổng tiền",
-      dataIndex: "total",
-      key: "total",
+      title: 'Tổng tiền',
+      dataIndex: 'total',
+      key: 'total',
       render: (value) => `${value.toLocaleString()} ₫`,
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
       render: (status) => {
         const statusConfig = {
-          pending: { color: "orange", text: "Chờ xử lý" },
-          processing: { color: "blue", text: "Đang xử lý" },
-          completed: { color: "green", text: "Hoàn thành" },
-          cancelled: { color: "red", text: "Đã hủy" },
+          pending: { color: 'orange', text: 'Chờ xử lý' },
+          processing: { color: 'blue', text: 'Đang xử lý' },
+          completed: { color: 'green', text: 'Hoàn thành' },
+          cancelled: { color: 'red', text: 'Đã hủy' },
         };
         const config = statusConfig[status] || statusConfig.pending;
         return <Tag color={config.color}>{config.text}</Tag>;
@@ -86,14 +86,14 @@ const DashboardPage = () => {
         const [orders, users, alerts] = await Promise.all([
           getOrderStats(),
           getUserStats(),
-          getStockAlerts(),
+          // getStockAlerts(),
         ]);
 
         setOrderStats(orders);
         setUserStats(users);
         setStockAlerts(alerts);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error('Error fetching dashboard data:', error);
       } finally {
         setLoading(false);
       }
@@ -111,7 +111,7 @@ const DashboardPage = () => {
       <PageHeader title="Dashboard" subtitle="Tổng quan hoạt động kinh doanh" />
 
       {/* Cảnh báo nguyên liệu */}
-      {stockAlerts.length > 0 && (
+      {/* {stockAlerts.length > 0 && (
         <Alert
           message={`Cảnh báo: ${stockAlerts.length} nguyên liệu sắp hết hoặc đã hết hàng`}
           description={
@@ -119,8 +119,8 @@ const DashboardPage = () => {
               {stockAlerts.slice(0, 3).map((alert) => (
                 <div key={alert.id}>
                   <strong>{alert.name}:</strong> {alert.currentStock}/
-                  {alert.minStock}{" "}
-                  {alert.type === "out_of_stock" ? "(Hết hàng)" : "(Sắp hết)"}
+                  {alert.minStock}{' '}
+                  {alert.type === 'out_of_stock' ? '(Hết hàng)' : '(Sắp hết)'}
                 </div>
               ))}
               {stockAlerts.length > 3 && (
@@ -134,7 +134,7 @@ const DashboardPage = () => {
           closable
           style={{ marginBottom: 24 }}
         />
-      )}
+      )} */}
 
       {/* Thống kê tổng quan */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -144,7 +144,7 @@ const DashboardPage = () => {
               title="Tổng đơn hàng"
               value={orderStats.total || 0}
               prefix={<OrderedListOutlined />}
-              valueStyle={{ color: "#1890ff" }}
+              valueStyle={{ color: '#1890ff' }}
             />
           </Card>
         </Col>
@@ -156,7 +156,7 @@ const DashboardPage = () => {
               value={orderStats.totalRevenue || 0}
               prefix={<DollarOutlined />}
               suffix="₫"
-              valueStyle={{ color: "#52c41a" }}
+              valueStyle={{ color: '#52c41a' }}
             />
           </Card>
         </Col>
@@ -167,7 +167,7 @@ const DashboardPage = () => {
               title="Tổng người dùng"
               value={userStats.total || 0}
               prefix={<UserOutlined />}
-              valueStyle={{ color: "#722ed1" }}
+              valueStyle={{ color: '#722ed1' }}
             />
           </Card>
         </Col>
@@ -178,7 +178,7 @@ const DashboardPage = () => {
               title="Khách hàng"
               value={userStats.customer || 0}
               prefix={<TeamOutlined />}
-              valueStyle={{ color: "#fa8c16" }}
+              valueStyle={{ color: '#fa8c16' }}
             />
           </Card>
         </Col>
@@ -190,12 +190,12 @@ const DashboardPage = () => {
           <Card title="Trạng thái đơn hàng" style={{ height: 400 }}>
             <Row gutter={[16, 16]}>
               <Col span={12}>
-                <div style={{ textAlign: "center" }}>
+                <div style={{ textAlign: 'center' }}>
                   <div
                     style={{
                       fontSize: 24,
-                      fontWeight: "bold",
-                      color: "#fa8c16",
+                      fontWeight: 'bold',
+                      color: '#fa8c16',
                     }}
                   >
                     {orderStats.pending || 0}
@@ -204,12 +204,12 @@ const DashboardPage = () => {
                 </div>
               </Col>
               <Col span={12}>
-                <div style={{ textAlign: "center" }}>
+                <div style={{ textAlign: 'center' }}>
                   <div
                     style={{
                       fontSize: 24,
-                      fontWeight: "bold",
-                      color: "#1890ff",
+                      fontWeight: 'bold',
+                      color: '#1890ff',
                     }}
                   >
                     {orderStats.processing || 0}
@@ -218,12 +218,12 @@ const DashboardPage = () => {
                 </div>
               </Col>
               <Col span={12}>
-                <div style={{ textAlign: "center", marginTop: 16 }}>
+                <div style={{ textAlign: 'center', marginTop: 16 }}>
                   <div
                     style={{
                       fontSize: 24,
-                      fontWeight: "bold",
-                      color: "#52c41a",
+                      fontWeight: 'bold',
+                      color: '#52c41a',
                     }}
                   >
                     {orderStats.completed || 0}
@@ -232,12 +232,12 @@ const DashboardPage = () => {
                 </div>
               </Col>
               <Col span={12}>
-                <div style={{ textAlign: "center", marginTop: 16 }}>
+                <div style={{ textAlign: 'center', marginTop: 16 }}>
                   <div
                     style={{
                       fontSize: 24,
-                      fontWeight: "bold",
-                      color: "#ff4d4f",
+                      fontWeight: 'bold',
+                      color: '#ff4d4f',
                     }}
                   >
                     {orderStats.cancelled || 0}
