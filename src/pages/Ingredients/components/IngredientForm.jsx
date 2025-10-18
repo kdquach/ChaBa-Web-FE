@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Form,
   Input,
@@ -11,6 +11,7 @@ import {
   Card,
   Select,
 } from 'antd';
+import { fetchIngredientCategoryNames } from '../../../api/ingredientCategories';
 import { SaveOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -25,9 +26,17 @@ const IngredientForm = ({
   submitting,
   initialValues,
   isView = false,
-  // categories = [], // Thêm prop categories để chọn danh mục
 }) => {
   const navigate = useNavigate();
+  const [ingredientNames, setIngredientNames] = useState([]);
+
+  useEffect(() => {
+    const loadNames = async () => {
+      const data = await fetchIngredientCategoryNames();
+      setIngredientNames(data);
+    };
+    loadNames();
+  }, []);
 
   return (
     <Card title="Thông tin cơ bản">
@@ -175,7 +184,7 @@ const IngredientForm = ({
               label="Hạn sử dụng"
               name="expiryDate"
               rules={[
-                { required: false, message: 'Vui lòng chọn hạn sử dụng!' }, // Không bắt buộc theo BE
+                { required: true, message: 'Vui lòng chọn hạn sử dụng!' }, // Không bắt buộc theo BE
               ]}
             >
               <DatePicker
@@ -211,26 +220,25 @@ const IngredientForm = ({
             </Form.Item>
           </Col>
 
-          {/* <Col xs={24} sm={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
-              label="Danh mục"
+              label="Danh mục nguyên liệu"
               name="categoryId"
-              rules={[
-                { required: false, message: 'Vui lòng chọn danh mục!' }, // Không bắt buộc theo BE
-              ]}
+              // rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
             >
               <Select
-                placeholder="Chọn danh mục nguyên liệu (không bắt buộc)"
+                placeholder="Chọn danh mục nguyên liệu"
                 allowClear
+                disabled={isView}
               >
-                {categories.map((category) => (
-                  <Option key={category._id} value={category._id}>
-                    {category.name}
+                {ingredientNames.map((item) => (
+                  <Option key={item._id} value={item.id}>
+                    {item.name}
                   </Option>
                 ))}
               </Select>
             </Form.Item>
-          </Col> */}
+          </Col>
         </Row>
 
         <Form.Item style={{ marginBottom: 0 }}>

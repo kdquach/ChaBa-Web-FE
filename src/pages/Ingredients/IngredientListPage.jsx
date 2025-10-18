@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Card, message, Modal } from 'antd';
+import { Button, Card, message, Modal, Row, Col } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/PageHeader';
@@ -7,6 +7,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { fetchIngredients, deleteIngredient } from '../../api/ingredients';
 import IngredientTable from './components/IngredientTable';
 import IngredientSearch from './components/IngredientSearch';
+import IngredientFilter from './components/IngredientFilter';
 import StockAlert from './components/StockAlert';
 
 const { confirm } = Modal;
@@ -29,10 +30,12 @@ const IngredientListPage = () => {
         page: params.page || pagination.current,
         limit: params.limit || pagination.pageSize,
         name: (params.name ?? search) || undefined,
+        categoryId: params.categoryId || undefined,
+        price: params.price || undefined,
+        expiryDate: params.expiryDate || undefined,
       };
 
       const response = await fetchIngredients(queryParams);
-      console.log('📦 Kết quả fetchIngredients:', response);
 
       setIngredients(response.results || []);
       setPagination((prev) => ({
@@ -90,9 +93,6 @@ const IngredientListPage = () => {
     });
   };
 
-  // const lowStockCount = ingredients.filter(
-  //   (i) => i.minStock !== undefined && i.stock < i.minStock
-  // ).length;
   const lowStockItems = ingredients.filter(
     (i) => i.minStock !== undefined && i.stock < i.minStock
   );
@@ -117,7 +117,33 @@ const IngredientListPage = () => {
         extra={headerExtra}
       />
       <StockAlert lowStockItems={lowStockItems} />
-      <IngredientSearch onSearch={handleSearch} />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          marginBottom: 16,
+          gap: 8,
+        }}
+      >
+        <IngredientSearch onSearch={handleSearch} />
+        <IngredientFilter
+          onFilter={(filters) => {
+            const params = {
+              page: 1,
+              name: search || undefined,
+              categoryId: filters.categoryId || undefined,
+              price: filters.price || undefined,
+              expiryDate: filters.expiryDate
+                ? filters.expiryDate.format('YYYY-MM-DD')
+                : undefined,
+            };
+            loadData(params);
+          }}
+        />
+      </div>
+
       <Card>
         <IngredientTable
           data={ingredients}

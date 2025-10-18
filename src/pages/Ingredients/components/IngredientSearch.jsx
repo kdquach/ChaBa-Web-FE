@@ -1,21 +1,24 @@
 import React from 'react';
-import { Input, Card } from 'antd';
+import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
 const { Search } = Input;
 
-const IngredientSearch = ({ onSearch, style }) => {
+const IngredientSearch = ({ onSearch }) => {
   return (
-    <Card style={{ marginBottom: 16, ...style }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <Search
         placeholder="Tìm kiếm nguyên liệu..."
         allowClear
         enterButton={<SearchOutlined />}
         size="middle"
-        style={{ width: 300 }}
+        style={{
+          width: 300,
+          borderRadius: 8,
+        }}
         onSearch={onSearch}
       />
-    </Card>
+    </div>
   );
 };
 

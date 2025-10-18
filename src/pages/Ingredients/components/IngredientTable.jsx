@@ -3,6 +3,7 @@ import { Table, Button, Space } from 'antd';
 import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import StockStatusTag from './StockStatusTag';
+import ExpiryStatusTag from './ExpiryStatusTag';
 
 const IngredientTable = ({
   data,
@@ -18,6 +19,7 @@ const IngredientTable = ({
       title: 'Tên nguyên liệu',
       dataIndex: 'name',
       key: 'name',
+      sorter: true,
       render: (text) => <strong>{text}</strong>,
     },
     {
@@ -41,6 +43,7 @@ const IngredientTable = ({
       title: 'Giá (VNĐ)',
       dataIndex: 'price',
       key: 'price',
+      sorter: true,
       render: (price) => price?.toLocaleString() || '—',
     },
     {
@@ -53,8 +56,7 @@ const IngredientTable = ({
       title: 'Hạn sử dụng',
       dataIndex: 'expiryDate',
       key: 'expiryDate',
-      render: (date) =>
-        date ? new Date(date).toLocaleDateString('vi-VN') : '—',
+      render: (date) => <ExpiryStatusTag expiryDate={date} />,
     },
     {
       title: 'Danh mục',
