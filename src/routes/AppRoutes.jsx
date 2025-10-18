@@ -10,6 +10,9 @@ import AuthLayout from "../layouts/AuthLayout";
 // Import pages
 import LoginPage from "../pages/Auth/LoginPage";
 import RegisterPage from "../pages/Auth/RegisterPage";
+import VerifyOtpPage from "../pages/Auth/VerifyOtpPage";
+import ResetPasswordPage from "../pages/Auth/ResetPasswordPage";
+import ForgotPasswordPage from "../pages/Auth/ForgotPasswordPage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
 import ProductListPage from "../pages/Products/ProductListPage";
 import ProductFormPage from "../pages/Products/ProductFormPage";
@@ -62,6 +65,36 @@ const AppRoutes = () => {
           <PublicRoute>
             <AuthLayout>
               <RegisterPage />
+            </AuthLayout>
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/auth/verify-otp"
+        element={
+          <PublicRoute>
+            <AuthLayout>
+              <VerifyOtpPage />
+            </AuthLayout>
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <PublicRoute>
+            <AuthLayout>
+              <ForgotPasswordPage />
+            </AuthLayout>
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/auth/reset-password"
+        element={
+          <PublicRoute>
+            <AuthLayout>
+              <ResetPasswordPage />
             </AuthLayout>
           </PublicRoute>
         }

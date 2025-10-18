@@ -133,6 +133,14 @@ const LoginPage = () => {
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </Button>
         </Form.Item>
+        <div style={{ textAlign: "right", marginBottom: 8 }}>
+          <a
+            onClick={() => navigate("/forgot-password")}
+            style={{ color: "#1890ff" }}
+          >
+            Quên mật khẩu?
+          </a>
+        </div>
       </Form>
 
       <Divider style={{ margin: "16px 0" }}>Hoặc</Divider>
