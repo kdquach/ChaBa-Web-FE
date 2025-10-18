@@ -41,9 +41,11 @@ const ProductFormPage = () => {
 
   // Load dữ liệu khi edit
   useEffect(() => {
-    loadProduct();
+    if (isEditing || isViewing) {
+      loadProduct();
+    }
     loadCategories();
-  }, [id, isEditing]);
+  }, [id, isEditing, isViewing]);
 
   const loadProduct = async () => {
     try {

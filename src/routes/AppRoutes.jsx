@@ -8,19 +8,21 @@ import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
 
 // Import pages
-import LoginPage from '../pages/Auth/LoginPage';
-import DashboardPage from '../pages/Dashboard/DashboardPage';
-import ProductListPage from '../pages/Products/ProductListPage';
-import ProductFormPage from '../pages/Products/ProductFormPage';
-import OrderListPage from '../pages/Orders/OrderListPage';
-import OrderDetailPage from '../pages/Orders/OrderDetailPage';
-import OrderFormPage from '../pages/Orders/OrderFormPage';
-import UserListPage from '../pages/Users/UserListPage';
-import UserFormPage from '../pages/Users/UserFormPage';
-import IngredientListPage from '../pages/Ingredients/IngredientListPage';
-import IngredientFormPage from '../pages/Ingredients/IngredientFormPage';
-import ToppingListPage from '../pages/Toppings/ToppingListPage';
-import ToppingFormPage from '../pages/Toppings/ToppingFormPage';
+import LoginPage from "../pages/Auth/LoginPage";
+import RegisterPage from "../pages/Auth/RegisterPage";
+import DashboardPage from "../pages/Dashboard/DashboardPage";
+import ProductListPage from "../pages/Products/ProductListPage";
+import ProductFormPage from "../pages/Products/ProductFormPage";
+import OrderListPage from "../pages/Orders/OrderListPage";
+import OrderDetailPage from "../pages/Orders/OrderDetailPage";
+import OrderFormPage from "../pages/Orders/OrderFormPage";
+import UserListPage from "../pages/Users/UserListPage";
+import UserFormPage from "../pages/Users/UserFormPage";
+import IngredientListPage from "../pages/Ingredients/IngredientListPage";
+import IngredientFormPage from "../pages/Ingredients/IngredientFormPage";
+import ToppingListPage from "../pages/Toppings/ToppingListPage";
+import ToppingFormPage from "../pages/Toppings/ToppingFormPage";
+import GoogleCallback from "../pages/Auth/GoogleCallback";
 import IngredientCategoryListPage from '../pages/IngredientCategory/IngredientCategoryListPage';
 import IngredientCategoryFormPage from '../pages/IngredientCategory/IngredientCategoryFormPage';
 
@@ -56,6 +58,17 @@ const AppRoutes = () => {
           </PublicRoute>
         }
       />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <AuthLayout>
+              <RegisterPage />
+            </AuthLayout>
+          </PublicRoute>
+        }
+      />
+      <Route path="/auth/google/callback" element={<GoogleCallback />} />
 
       {/* Routes được bảo vệ - cần đăng nhập */}
       <Route
@@ -113,6 +126,7 @@ const AppRoutes = () => {
           path="ingredient-categories/:id/edit"
           element={<IngredientCategoryFormPage />}
         />
+        <Route path="toppings/:id/:mode" element={<ToppingFormPage />} />
       </Route>
 
       {/* Route mặc định - chuyển hướng về dashboard */}
