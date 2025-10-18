@@ -94,8 +94,6 @@ export const getUsers = async (params = {}) => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   const { results, totalResults, totalPages, page, limit } = await fetchUsers(params);
-  console.log("🚀 ~ getUsers ~ results:", results)
-
 
   return {
     data: results,
@@ -112,7 +110,6 @@ export const getUsers = async (params = {}) => {
 export const getUser = async (id) => {
   try {
     const res = await apiClient.get(`/users/${id}`);
-    console.log("🚀 ~ getUser ~ res:", res)
     return res;
   } catch (err) {
     const status = err?.response?.status;
@@ -131,6 +128,7 @@ export const createUser = async (data) => {
   try {
     let { password, type } = data;
     if (!password && type) {
+      // Tạo password random theo type VD: staff12345, user12345
       password = `${type}12345`;
     }
     const res = await apiClient.post('/users', { ...data, password });
@@ -157,20 +155,15 @@ export const createUser = async (data) => {
 // Cập nhật user
 export const updateUser = async (id, data) => {
   try {
-    const res = await apiClient.patch(`/users/${id}`, data);
+    const res = await apiClient.patch(`/users/${id}`, data, { silentError: true });
     return res;
   } catch (err) {
+    console.log("🚀 ~ updateUser ~ err:", err)
     const status = err?.response?.status;
     if (status === 401 || status === 403) {
       // Fallback dev
       const index = mockUsers.findIndex((u) => String(u.id) === String(id));
       if (index === -1) throw new Error("Không tìm thấy người dùng");
-      mockUsers[index] = {
-        ...mockUsers[index],
-        ...data,
-        updatedAt: new Date().toISOString(),
-      };
-      return mockUsers[index];
     }
     throw err;
   }
@@ -180,6 +173,7 @@ export const updateUser = async (id, data) => {
 export const deleteUser = async (id) => {
   try {
     const response = await apiClient.delete(`/users/${id}`);
+    console.log("🚀 ~ deleteUser ~ response:", response)
     return response;
   } catch (err) {
     const status = err?.response?.status;
