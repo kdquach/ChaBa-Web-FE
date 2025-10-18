@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Button, Space, Input, Modal, Card, Tag, message } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -15,14 +15,26 @@ const CategoryListPage = () => {
   const [categoriesRaw, setCategoriesRaw] = useState([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [search, setSearch] = useState("");
+  const [sortState, setSortState] = useState({ field: undefined, order: undefined });
 
-  const loadData = async () => {
+  const loadData = async (
+    page = pagination.current,
+    limit = pagination.pageSize,
+    keyword = search,
+    sort = sortState
+  ) => {
     try {
       setLoading(true);
-      const res = await getCategories();
-      const list = res?.results || res?.data || res || [];
+      const params = { page, limit };
+      if (keyword && keyword.trim()) params.name = keyword.trim();
+      if (sort?.field && sort?.order) {
+        params.sortBy = `${sort.field}:${sort.order === "ascend" ? "asc" : "desc"}`;
+      }
+      const res = await getCategories(params);
+      const list = res?.results || [];
+      const total = res?.totalResults ?? res?.total ?? list.length ?? 0;
       setCategoriesRaw(Array.isArray(list) ? list : []);
-      setPagination((p) => ({ ...p, total: Array.isArray(list) ? list.length : 0 }));
+      setPagination((p) => ({ ...p, current: res?.page ?? page, pageSize: res?.limit ?? limit, total }));
     } catch (e) {
     } finally {
       setLoading(false);
@@ -30,25 +42,20 @@ const CategoryListPage = () => {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData(pagination.current, pagination.pageSize, search, sortState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.current, pagination.pageSize, search, sortState.field, sortState.order]);
 
-  const filtered = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
-    if (!keyword) return categoriesRaw;
-    return categoriesRaw.filter(
-      (c) => c.name?.toLowerCase().includes(keyword) || c.description?.toLowerCase().includes(keyword)
-    );
-  }, [categoriesRaw, search]);
-
-  const paged = useMemo(() => {
-    const start = (pagination.current - 1) * pagination.pageSize;
-    const end = start + pagination.pageSize;
-    return filtered.slice(start, end);
-  }, [filtered, pagination]);
-
-  const handleTableChange = (newPagination) => {
-    setPagination(newPagination);
+  const handleTableChange = (newPagination, _filters, sorter) => {
+    setPagination((p) => ({ ...p, current: newPagination.current, pageSize: newPagination.pageSize }));
+    // Normalize sorter and only allow sorting on specific fields
+    const s = Array.isArray(sorter) ? sorter[0] || {} : sorter || {};
+    const allowed = new Set(["name"]);
+    if (allowed.has(s.field)) {
+      setSortState({ field: s.field, order: s.order });
+    } else {
+      setSortState({ field: undefined, order: undefined });
+    }
   };
 
   const handleDelete = (record) => {
@@ -61,9 +68,10 @@ const CategoryListPage = () => {
       onOk: async () => {
         try {
           await deleteCategory(record.id || record._id);
-          message.success("Đã xóa danh mục");
+          message.success("Đã xóa danh mục thành công");
           loadData();
         } catch (err) {
+          message.error(err?.message || "Không thể xóa danh mục");
         }
       },
     });
@@ -84,6 +92,8 @@ const CategoryListPage = () => {
       title: "Tên danh mục",
       dataIndex: "name",
       key: "name",
+      sorter: true,
+      sortOrder: sortState.field === "name" ? sortState.order : null,
       render: (text) => <span style={{ fontWeight: 500 }}>{text}</span>,
     },
     {
@@ -138,7 +148,7 @@ const CategoryListPage = () => {
             enterButton={<SearchOutlined />}
             size="middle"
             style={{ width: 320 }}
-            onSearch={setSearch}
+            onSearch={(value) => setSearch(value)}
             onChange={(e) => setSearch(e.target.value)}
             value={search}
           />
@@ -148,10 +158,10 @@ const CategoryListPage = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={paged}
+          dataSource={categoriesRaw}
           rowKey={(r) => r.id || r._id}
           loading={loading}
-          pagination={{ ...pagination, total: filtered.length }}
+          pagination={pagination}
           onChange={handleTableChange}
         />
       </Card>

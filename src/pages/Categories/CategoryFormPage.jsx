@@ -67,9 +67,16 @@ const CategoryFormPage = () => {
           <Form.Item
             label="Tên danh mục"
             name="name"
-            rules={[{ required: true, message: "Vui lòng nhập tên danh mục!" }, { max: 100 }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập tên danh mục!" },
+              { max: 100 },
+              {
+                pattern: new RegExp("^[\\p{L}\\p{N}\\s]+$", "u"),
+                message: "Tên danh mục không được chứa ký tự đặc biệt",
+              },
+            ]}
           >
-            <Input placeholder="Ví dụ: Trà, Cà phê, Sữa..." />
+            <Input placeholder="Ví dụ: Trà, Cà phê, Sữa..." autoFocus />
           </Form.Item>
 
           <Form.Item label="Mô tả" name="description" rules={[{ max: 300 }]}> 
