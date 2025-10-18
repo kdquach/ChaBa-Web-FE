@@ -22,6 +22,8 @@ import IngredientListPage from "../pages/Ingredients/IngredientListPage";
 import IngredientFormPage from "../pages/Ingredients/IngredientFormPage";
 import ToppingListPage from "../pages/Toppings/ToppingListPage";
 import ToppingFormPage from "../pages/Toppings/ToppingFormPage";
+import CategoryListPage from "../pages/Categories/CategoryListPage";
+import CategoryFormPage from "../pages/Categories/CategoryFormPage";
 import GoogleCallback from "../pages/Auth/GoogleCallback";
 import IngredientCategoryListPage from '../pages/IngredientCategory/IngredientCategoryListPage';
 import IngredientCategoryFormPage from '../pages/IngredientCategory/IngredientCategoryFormPage';
@@ -112,7 +114,10 @@ const AppRoutes = () => {
         <Route path="toppings" element={<ToppingListPage />} />
         <Route path="toppings/new" element={<ToppingFormPage />} />
         <Route path="toppings/:id/edit" element={<ToppingFormPage />} />
-
+        {/* Quản lý danh mục */}
+        <Route path="categories" element={<CategoryListPage />} />
+        <Route path="categories/new" element={<CategoryFormPage />} />
+        <Route path="categories/:id/edit" element={<CategoryFormPage />} />
         {/* 🟣 Quản lý loại nguyên liệu (Ingredient Category) */}
         <Route
           path="ingredient-categories"

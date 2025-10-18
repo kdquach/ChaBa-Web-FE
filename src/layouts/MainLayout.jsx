@@ -43,7 +43,16 @@ const MainLayout = () => {
       label: 'Dashboard',
     },
     {
-      key: '/products',
+      key: "/categories",
+      icon: <InboxOutlined />,
+      label: "Quản lý danh mục",
+      children: [
+        { key: "/categories", label: "Danh sách danh mục" },
+        { key: "/categories/new", label: "Thêm danh mục" },
+      ],
+    },
+    {
+      key: "/products",
       icon: <ShoppingOutlined />,
       label: 'Quản lý sản phẩm',
       children: [
@@ -168,14 +177,14 @@ const MainLayout = () => {
     ];
 
     const pathMap = {
-      products: 'Sản phẩm',
-      orders: 'Đơn hàng',
-      users: 'Người dùng',
-      ingredients: 'Nguyên liệu',
-      'ingredient-categories': 'Loại nguyên liệu',
-      toppings: 'Topping',
-      new: 'Thêm mới',
-      edit: 'Chỉnh sửa',
+      products: "Sản phẩm",
+      orders: "Đơn hàng",
+      users: "Người dùng",
+      ingredients: "Nguyên liệu",
+      toppings: "Topping",
+      categories: "Danh mục",
+      new: "Thêm mới",
+      edit: "Chỉnh sửa",
     };
 
     pathSnippets.forEach((snippet, index) => {
