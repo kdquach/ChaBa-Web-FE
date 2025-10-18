@@ -12,50 +12,47 @@ const { confirm } = Modal;
 const CategoryListPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [categoriesRaw, setCategoriesRaw] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [search, setSearch] = useState("");
-  const [sortState, setSortState] = useState({ field: undefined, order: undefined });
 
-  const loadData = async (
-    page = pagination.current,
-    limit = pagination.pageSize,
-    keyword = search,
-    sort = sortState
-  ) => {
+  const loadData = async (page = pagination.current, limit = pagination.pageSize, keyword = search, sorter) => {
     try {
       setLoading(true);
       const params = { page, limit };
       if (keyword && keyword.trim()) params.name = keyword.trim();
-      if (sort?.field && sort?.order) {
-        params.sortBy = `${sort.field}:${sort.order === "ascend" ? "asc" : "desc"}`;
+      if (sorter && sorter.field === "name" && sorter.order) {
+        params.sortBy = `name:${sorter.order === "ascend" ? "asc" : "desc"}`;
       }
       const res = await getCategories(params);
       const list = res?.results || [];
       const total = res?.totalResults ?? res?.total ?? list.length ?? 0;
-      setCategoriesRaw(Array.isArray(list) ? list : []);
-      setPagination((p) => ({ ...p, current: res?.page ?? page, pageSize: res?.limit ?? limit, total }));
+      setCategories(Array.isArray(list) ? list : []);
+      setPagination({ current: res?.page ?? page, pageSize: res?.limit ?? limit, total });
     } catch (e) {
+      message.error("Không thể tải danh sách danh mục");
+      setCategories([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData(pagination.current, pagination.pageSize, search, sortState);
+    loadData(pagination.current, pagination.pageSize, search);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.current, pagination.pageSize, search, sortState.field, sortState.order]);
+  }, []);
 
   const handleTableChange = (newPagination, _filters, sorter) => {
     setPagination((p) => ({ ...p, current: newPagination.current, pageSize: newPagination.pageSize }));
-    // Normalize sorter and only allow sorting on specific fields
     const s = Array.isArray(sorter) ? sorter[0] || {} : sorter || {};
-    const allowed = new Set(["name"]);
-    if (allowed.has(s.field)) {
-      setSortState({ field: s.field, order: s.order });
-    } else {
-      setSortState({ field: undefined, order: undefined });
-    }
+    loadData(newPagination.current, newPagination.pageSize, search, s);
+  };
+
+  const handleSearch = (value) => {
+    setSearch(value);
+    const newPaging = { ...pagination, current: 1 };
+    setPagination(newPaging);
+    loadData(1, pagination.pageSize, value);
   };
 
   const handleDelete = (record) => {
@@ -93,7 +90,6 @@ const CategoryListPage = () => {
       dataIndex: "name",
       key: "name",
       sorter: true,
-      sortOrder: sortState.field === "name" ? sortState.order : null,
       render: (text) => <span style={{ fontWeight: 500 }}>{text}</span>,
     },
     {
@@ -132,9 +128,9 @@ const CategoryListPage = () => {
     </Button>
   );
 
-  if (loading && categoriesRaw.length === 0) {
-    return <LoadingSpinner />;
-  }
+  // if (loading && categoriesRaw.length === 0) {
+  //   return <LoadingSpinner />;
+  // }
 
   return (
     <div>
@@ -147,9 +143,9 @@ const CategoryListPage = () => {
             allowClear
             enterButton={<SearchOutlined />}
             size="middle"
-            style={{ width: 320 }}
-            onSearch={(value) => setSearch(value)}
-            onChange={(e) => setSearch(e.target.value)}
+            style={{ width: 300 }}
+            onSearch={handleSearch}
+            onChange={(e) => handleSearch(e.target.value)}
             value={search}
           />
         </Space>
@@ -158,7 +154,7 @@ const CategoryListPage = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={categoriesRaw}
+          dataSource={categories}
           rowKey={(r) => r.id || r._id}
           loading={loading}
           pagination={pagination}
