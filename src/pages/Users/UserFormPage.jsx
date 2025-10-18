@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, Switch, message, Card, Row, Col, Checkbox } from 'antd';
+import { Form, Input, Button, Select, Switch, message, Card, Row, Col, Checkbox, Space } from 'antd';
 import { SaveOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../components/PageHeader';
@@ -15,10 +15,10 @@ const UserFormPage = () => {
   const { id } = useParams();
   const isEditing = Boolean(id);
   const [form] = Form.useForm();
-  
+
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [userType, setUserType] = useState('customer');
+  const [userType, setUserType] = useState('user');
 
   useEffect(() => {
     if (isEditing) {
@@ -46,11 +46,11 @@ const UserFormPage = () => {
   // Xử lý thay đổi loại người dùng
   const handleUserTypeChange = (type) => {
     setUserType(type);
-    
+
     // Reset role và permissions khi đổi type
-    if (type === 'customer') {
+    if (type === 'user') {
       form.setFieldsValue({
-        role: 'customer',
+        role: 'user',
         permissions: []
       });
     } else {
@@ -65,13 +65,13 @@ const UserFormPage = () => {
   const handleSubmit = async (values) => {
     try {
       setSubmitting(true);
-      
+
       const userData = {
         ...values,
         status: values.status ? 'active' : 'inactive',
         permissions: values.permissions || [],
       };
-      
+
       if (isEditing) {
         await updateUser(id, userData);
         message.success('Cập nhật người dùng thành công!');
@@ -79,7 +79,7 @@ const UserFormPage = () => {
         await createUser(userData);
         message.success('Tạo người dùng thành công!');
       }
-      
+
       navigate('/users');
     } catch (error) {
       message.error(error.message || 'Có lỗi xảy ra khi lưu người dùng');
@@ -110,8 +110,8 @@ const UserFormPage = () => {
               onFinish={handleSubmit}
               autoComplete="off"
               initialValues={{
-                type: 'customer',
-                role: 'customer',
+                type: 'user',
+                role: 'user',
                 status: true,
                 permissions: [],
               }}
@@ -129,8 +129,8 @@ const UserFormPage = () => {
                     <Input prefix={<UserOutlined />} placeholder="Nhập tên người dùng" />
                   </Form.Item>
                 </Col>
-                
-                <Col xs={24} sm={12}>
+
+                {/* <Col xs={24} sm={12}>
                   <Form.Item
                     label="Tên đăng nhập"
                     name="username"
@@ -143,7 +143,7 @@ const UserFormPage = () => {
                   >
                     <Input placeholder="Nhập tên đăng nhập" />
                   </Form.Item>
-                </Col>
+                </Col> */}
               </Row>
 
               <Row gutter={16}>
@@ -159,7 +159,7 @@ const UserFormPage = () => {
                     <Input placeholder="Nhập địa chỉ email" />
                   </Form.Item>
                 </Col>
-                
+
                 <Col xs={24} sm={12}>
                   <Form.Item
                     label="Số điện thoại"
@@ -175,7 +175,7 @@ const UserFormPage = () => {
               </Row>
 
               {/* Chỉ hiện địa chỉ cho customer */}
-              {userType === 'customer' && (
+              {userType === 'user' && (
                 <Form.Item
                   label="Địa chỉ"
                   name="address"
@@ -191,16 +191,16 @@ const UserFormPage = () => {
                     name="type"
                     rules={[{ required: true, message: 'Vui lòng chọn loại người dùng!' }]}
                   >
-                    <Select 
+                    <Select
                       placeholder="Chọn loại người dùng"
                       onChange={handleUserTypeChange}
                     >
                       <Option value="staff">Nhân viên</Option>
-                      <Option value="customer">Khách hàng</Option>
+                      <Option value="user">Khách hàng</Option>
                     </Select>
                   </Form.Item>
                 </Col>
-                
+
                 <Col xs={24} sm={8}>
                   <Form.Item
                     label="Vai trò"
@@ -210,20 +210,20 @@ const UserFormPage = () => {
                     <Select placeholder="Chọn vai trò">
                       {userType === 'staff' && <Option value="admin">Quản trị viên</Option>}
                       {userType === 'staff' && <Option value="staff">Nhân viên</Option>}
-                      {userType === 'customer' && <Option value="customer">Khách hàng</Option>}
+                      {userType === 'user' && <Option value="user">Khách hàng</Option>}
                     </Select>
                   </Form.Item>
                 </Col>
-                
+
                 <Col xs={24} sm={8}>
                   <Form.Item
                     label="Trạng thái"
                     name="status"
                     valuePropName="checked"
                   >
-                    <Switch 
-                      checkedChildren="Hoạt động" 
-                      unCheckedChildren="Khóa" 
+                    <Switch
+                      checkedChildren="Hoạt động"
+                      unCheckedChildren="Khóa"
                     />
                   </Form.Item>
                 </Col>
@@ -234,9 +234,9 @@ const UserFormPage = () => {
                   <Button onClick={() => navigate('/users')}>
                     Hủy
                   </Button>
-                  <Button 
-                    type="primary" 
-                    htmlType="submit" 
+                  <Button
+                    type="primary"
+                    htmlType="submit"
                     loading={submitting}
                     icon={<SaveOutlined />}
                   >
@@ -270,7 +270,7 @@ const UserFormPage = () => {
                   ]}
                 />
               </Form.Item>
-              
+
               <div style={{ fontSize: 12, color: '#888' }}>
                 * Quản trị viên sẽ tự động có tất cả quyền
               </div>

@@ -1,4 +1,4 @@
-//import apiClient from './client';
+import apiClient from './client';
 
 // Mock data cho users (nhân viên và khách hàng)
 const MOCK_USERS = [
@@ -67,145 +67,132 @@ const MOCK_USERS = [
 
 let mockUsers = [...MOCK_USERS];
 
+// Chuẩn hóa user từ BE cho UI hiện tại (suy ra type/status nếu thiếu)
+function cleanParams(params) {
+  return Object.fromEntries(
+    Object.entries(params).filter(([_, v]) => v !== "" && v != null)
+  );
+}
+
+
 // Lấy danh sách users
+export const fetchUsers = async (params) => {
+  try {
+    // Gọi API backend
+    const res = await apiClient.get('/users', { params: cleanParams(params) });
+    return res; // nếu backend trả mảng trực tiếp
+  } catch (err) {
+    const status = err?.response?.status;
+    // Nếu chưa đăng nhập (401) hoặc không đủ quyền (403), fallback mock để UI vẫn chạy được trong dev
+    if (status === 401 || status === 403) {
+      return [...mockUsers];
+    }
+    throw err;
+  }
+};
 export const getUsers = async (params = {}) => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const { page = 1, limit = 10, search, type, role, status } = params;
+  const { results, totalResults, totalPages, page, limit } = await fetchUsers(params);
+  console.log("🚀 ~ getUsers ~ results:", results)
 
-  let filteredUsers = [...mockUsers];
-
-  // Tìm kiếm theo tên, email, phone
-  if (search) {
-    filteredUsers = filteredUsers.filter(
-      (user) =>
-        user.name.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase()) ||
-        user.phone.includes(search)
-    );
-  }
-
-  // Lọc theo loại user (staff/customer)
-  if (type) {
-    filteredUsers = filteredUsers.filter((user) => user.type === type);
-  }
-
-  // Lọc theo role
-  if (role) {
-    filteredUsers = filteredUsers.filter((user) => user.role === role);
-  }
-
-  // Lọc theo trạng thái
-  if (status) {
-    filteredUsers = filteredUsers.filter((user) => user.status === status);
-  }
-
-  const total = filteredUsers.length;
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-  const users = filteredUsers.slice(startIndex, endIndex);
 
   return {
-    data: users,
+    data: results,
     pagination: {
       current: page,
       pageSize: limit,
-      total,
-      totalPages: Math.ceil(total / limit),
+      total: totalResults,
+      totalPages: totalPages,
     },
   };
 };
 
 // Lấy chi tiết user
 export const getUser = async (id) => {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  const user = mockUsers.find((u) => u.id === parseInt(id));
-  if (!user) {
-    throw new Error("Không tìm thấy người dùng");
+  try {
+    const res = await apiClient.get(`/users/${id}`);
+    console.log("🚀 ~ getUser ~ res:", res)
+    return res;
+  } catch (err) {
+    const status = err?.response?.status;
+    if (status === 401 || status === 403) {
+      // Fallback dev: tìm trong mock
+      const user = mockUsers.find((u) => String(u.id) === String(id));
+      if (!user) throw new Error("Không tìm thấy người dùng");
+      return user;
+    }
+    throw err;
   }
-
-  return user;
 };
 
 // Tạo user mới
 export const createUser = async (data) => {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  // Kiểm tra username đã tồn tại
-  const existingUser = mockUsers.find((u) => u.username === data.username);
-  if (existingUser) {
-    throw new Error("Tên đăng nhập đã tồn tại");
+  try {
+    let { password, type } = data;
+    if (!password && type) {
+      password = `${type}12345`;
+    }
+    const res = await apiClient.post('/users', { ...data, password });
+    return res;
+  } catch (err) {
+    const status = err?.response?.status;
+    if (status === 401 || status === 403) {
+      // Fallback dev
+      const newUser = {
+        id: Math.max(...mockUsers.map((u) => u.id)) + 1,
+        ...data,
+        status: data.status || 'active',
+        permissions: data.permissions || [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      mockUsers.push(newUser);
+      return newUser;
+    }
+    throw err;
   }
-
-  // Kiểm tra email đã tồn tại
-  const existingEmail = mockUsers.find((u) => u.email === data.email);
-  if (existingEmail) {
-    throw new Error("Email đã tồn tại");
-  }
-
-  const newUser = {
-    id: Math.max(...mockUsers.map((u) => u.id)) + 1,
-    ...data,
-    status: data.status || "active",
-    permissions: data.permissions || [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  mockUsers.push(newUser);
-  return newUser;
 };
 
 // Cập nhật user
 export const updateUser = async (id, data) => {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  const index = mockUsers.findIndex((u) => u.id === parseInt(id));
-  if (index === -1) {
-    throw new Error("Không tìm thấy người dùng");
-  }
-
-  // Kiểm tra username và email trùng lặp (nếu có thay đổi)
-  if (data.username && data.username !== mockUsers[index].username) {
-    const existingUser = mockUsers.find((u) => u.username === data.username);
-    if (existingUser) {
-      throw new Error("Tên đăng nhập đã tồn tại");
+  try {
+    const res = await apiClient.patch(`/users/${id}`, data);
+    return res;
+  } catch (err) {
+    const status = err?.response?.status;
+    if (status === 401 || status === 403) {
+      // Fallback dev
+      const index = mockUsers.findIndex((u) => String(u.id) === String(id));
+      if (index === -1) throw new Error("Không tìm thấy người dùng");
+      mockUsers[index] = {
+        ...mockUsers[index],
+        ...data,
+        updatedAt: new Date().toISOString(),
+      };
+      return mockUsers[index];
     }
+    throw err;
   }
-
-  if (data.email && data.email !== mockUsers[index].email) {
-    const existingEmail = mockUsers.find((u) => u.email === data.email);
-    if (existingEmail) {
-      throw new Error("Email đã tồn tại");
-    }
-  }
-
-  mockUsers[index] = {
-    ...mockUsers[index],
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-
-  return mockUsers[index];
 };
 
 // Xóa user
 export const deleteUser = async (id) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const index = mockUsers.findIndex((u) => u.id === parseInt(id));
-  if (index === -1) {
-    throw new Error("Không tìm thấy người dùng");
+  try {
+    const response = await apiClient.delete(`/users/${id}`);
+    return response;
+  } catch (err) {
+    const status = err?.response?.status;
+    if (status === 401 || status === 403) {
+      // Fallback dev
+      const index = mockUsers.findIndex((u) => String(u.id) === String(id));
+      if (index === -1) throw new Error("Không tìm thấy người dùng");
+      if (mockUsers[index].role === 'admin') throw new Error("Không thể xóa tài khoản admin");
+      mockUsers.splice(index, 1);
+      return { success: true };
+    }
+    throw err;
   }
-
-  // Không cho phép xóa admin
-  if (mockUsers[index].role === "admin") {
-    throw new Error("Không thể xóa tài khoản admin");
-  }
-
-  mockUsers.splice(index, 1);
-  return { success: true };
 };
 
 // Cập nhật trạng thái user
