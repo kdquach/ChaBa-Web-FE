@@ -38,7 +38,11 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     const { response } = error;
-
+    const config = error?.config || {};
+    // ⛔ Nếu request có flag silentError thì không hiển thị message
+    if (config?.silentError) {
+      return Promise.reject(error);
+    }
     // Xử lý các trường hợp lỗi khác nhau
     if (response) {
       const { status, data } = response;
