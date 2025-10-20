@@ -10,6 +10,9 @@ import {
 } from '@ant-design/icons';
 import PageHeader from '../../components/PageHeader';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import OverviewStats from './OverviewStats';
+import RevenueAreaChart from './RevenueAreaChart';
+import TopProductsPie from './TopProductsPie';
 import { getOrderStats } from '../../api/orders';
 import { getUserStats } from '../../api/users';
 // import { getStockAlerts } from "../../api/ingredients";
@@ -19,6 +22,7 @@ const DashboardPage = () => {
   const [orderStats, setOrderStats] = useState({});
   const [userStats, setUserStats] = useState({});
   const [stockAlerts, setStockAlerts] = useState([]);
+  const vnd = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
   // Mock dữ liệu gần đây
   const recentOrders = [
@@ -60,7 +64,7 @@ const DashboardPage = () => {
       title: 'Tổng tiền',
       dataIndex: 'total',
       key: 'total',
-      render: (value) => `${value.toLocaleString()} ₫`,
+      render: (value) => vnd.format(Number(value || 0)),
     },
     {
       title: 'Trạng thái',
@@ -110,83 +114,26 @@ const DashboardPage = () => {
     <div>
       <PageHeader title="Dashboard" subtitle="Tổng quan hoạt động kinh doanh" />
 
-      {/* Cảnh báo nguyên liệu */}
-      {/* {stockAlerts.length > 0 && (
-        <Alert
-          message={`Cảnh báo: ${stockAlerts.length} nguyên liệu sắp hết hoặc đã hết hàng`}
-          description={
-            <div>
-              {stockAlerts.slice(0, 3).map((alert) => (
-                <div key={alert.id}>
-                  <strong>{alert.name}:</strong> {alert.currentStock}/
-                  {alert.minStock}{' '}
-                  {alert.type === 'out_of_stock' ? '(Hết hàng)' : '(Sắp hết)'}
-                </div>
-              ))}
-              {stockAlerts.length > 3 && (
-                <div>... và {stockAlerts.length - 3} nguyên liệu khác</div>
-              )}
-            </div>
-          }
-          type="warning"
-          icon={<WarningOutlined />}
-          showIcon
-          closable
-          style={{ marginBottom: 24 }}
-        />
-      )} */}
-
-      {/* Thống kê tổng quan */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Tổng đơn hàng"
-              value={orderStats.total || 0}
-              prefix={<OrderedListOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
-
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Doanh thu"
-              value={orderStats.totalRevenue || 0}
-              prefix={<DollarOutlined />}
-              suffix="₫"
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Card>
-        </Col>
-
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Tổng người dùng"
-              value={userStats.total || 0}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#722ed1' }}
-            />
-          </Card>
-        </Col>
-
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Khách hàng"
-              value={userStats.customer || 0}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: '#fa8c16' }}
-            />
-          </Card>
+      {/* Row 1: Overview full width */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+        <Col span={24}>
+          <OverviewStats />
         </Col>
       </Row>
 
-      {/* Biểu đồ và bảng */}
+      {/* Row 2: Area chart (16) + Pie (8) */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+        <Col xs={24} lg={16}>
+          <RevenueAreaChart />
+        </Col>
+        <Col xs={24} lg={8}>
+          <TopProductsPie />
+        </Col>
+      </Row>
+
+      {/* Row 3: Order status (8) + Recent orders (16) */}
       <Row gutter={[16, 16]}>
-        <Col xs={24} lg={12}>
+        <Col xs={24} lg={8}>
           <Card title="Trạng thái đơn hàng" style={{ height: 400 }}>
             <Row gutter={[16, 16]}>
               <Col span={12}>
@@ -262,8 +209,7 @@ const DashboardPage = () => {
             </div>
           </Card>
         </Col>
-
-        <Col xs={24} lg={12}>
+        <Col xs={24} lg={16}>
           <Card title="Đơn hàng gần đây" style={{ height: 400 }}>
             <Table
               dataSource={recentOrders}

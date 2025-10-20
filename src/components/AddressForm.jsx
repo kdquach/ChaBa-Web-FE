@@ -1,12 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Select, Input } from "antd";
-
-import {
-    getProvinces,
-    getDistricts,
-    getWards
-} from "vietnam-provinces";
+import { getDistricts, getProvinces, getWards } from "vietnam-provinces";
 
 const AddressForm = ({ value = {}, onChange, disabled }) => {
     const [address, setAddress] = useState({

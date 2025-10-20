@@ -10,6 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/plots": "^2.6.5",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.4",
+    "@mui/x-charts": "^8.14.1",
     "@react-oauth/google": "^0.12.2",
     "antd": "^5.27.5",
     "axios": "^1.11.0",
@@ -18,7 +23,8 @@
     "multer-storage-cloudinary": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.4",
+    "vietnam-provinces": "^0.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
