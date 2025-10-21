@@ -123,9 +123,9 @@ const ProductFormPage = () => {
       // Xử lý recipe thành array
       const recipe = values.recipe
         ? values.recipe
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
         : [];
 
       const productData = {
@@ -163,15 +163,15 @@ const ProductFormPage = () => {
           isViewing
             ? "Chi tiết sản phẩm"
             : isEditing
-            ? "Chỉnh sửa sản phẩm"
-            : "Thêm sản phẩm mới"
+              ? "Chỉnh sửa sản phẩm"
+              : "Thêm sản phẩm mới"
         }
         subtitle={
           isViewing
             ? "Xem thông tin chi tiết sản phẩm"
             : isEditing
-            ? "Cập nhật thông tin sản phẩm"
-            : "Nhập thông tin sản phẩm mới"
+              ? "Cập nhật thông tin sản phẩm"
+              : "Nhập thông tin sản phẩm mới"
         }
         showBack
         backPath="/products"
