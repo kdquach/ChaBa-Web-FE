@@ -83,7 +83,9 @@ export const changePassword = async (data) => {
  * @returns {Promise<{success: boolean, message: string}>} - Kết quả yêu cầu
  */
 export const requestPasswordReset = async (email) => {
-  const response = await apiClient.post("/auth/forgot-password", { email });
+  const response = await apiClient.post("/auth/forgot-password/send-otp", {
+    email,
+  });
   return response;
 };
 
@@ -95,7 +97,11 @@ export const requestPasswordReset = async (email) => {
  * @returns {Promise<{success: boolean, message: string}>} - Kết quả đặt lại mật khẩu
  */
 export const resetPassword = async (resetData) => {
-  const response = await apiClient.post("/auth/reset-password", resetData);
+  console.log("resetData in auth.js:", resetData);
+  const response = await apiClient.post(
+    "/auth/reset-password/with-otp",
+    resetData
+  );
   return response;
 };
 
@@ -110,13 +116,50 @@ export const resetPassword = async (resetData) => {
  */
 export const register = async (userData) => {
   try {
-    const data = await apiClient.post("/auth/register", userData);
+    const data = await apiClient.post("/auth/register/send-otp", userData);
     if (!data) {
       throw new Error("Không nhận được dữ liệu từ server");
     }
     return data;
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+/**
+ * Xác thực OTP khi đăng ký
+ * @param {Object} verifyData - Dữ liệu xác thực gồm name,email,phone,password,otp (theo API backend)
+ * @returns {Promise<Object>} - Response từ server
+ */
+export const verifyRegisterOtp = async (verifyData) => {
+  try {
+    const data = await apiClient.post("/auth/register/verify-otp", verifyData);
+    if (!data) {
+      throw new Error("No data received from server");
+    }
+    return data;
+  } catch (error) {
+    console.error("Verify OTP error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+/** Xác thực OTP khi quên mật khẩu
+ * @param {Object} verifyData - Dữ liệu xác thực gồm email, otp (theo API backend)
+ * @returns {Promise<Object>} - Response từ server
+ */
+export const verifyForgotPasswordOtp = async (verifyData) => {
+  try {
+    const data = await apiClient.post(
+      "/auth/forgot-password/verify-otp",
+      verifyData
+    );
+    if (!data) {
+      throw new Error("No data received from server");
+    }
+    return data;
+  } catch (error) {
+    console.error("Verify OTP error:", error.response?.data || error.message);
     throw error;
   }
 };

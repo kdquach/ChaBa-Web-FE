@@ -31,10 +31,11 @@ const RegisterPage = () => {
 
       const data = await register(registerData);
       console.log("Đăng ký thành công:", data);
-      // Redirect to login page after successful registration
-      navigate("/login", {
+      // Navigate to Verify OTP page with the register data so user can input OTP
+      navigate("/auth/verify-otp", {
         state: {
-          message: "Đăng ký thành công! Vui lòng đăng nhập.",
+          registerData,
+          flow: "register",
         },
       });
     } catch (err) {
