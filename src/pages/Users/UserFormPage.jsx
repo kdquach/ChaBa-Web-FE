@@ -23,6 +23,7 @@ const UserFormPage = () => {
   const [address, setAddress] = useState({})
   const [addressDisabled, setAddressDisabled] = useState(false);
   const [permissions, setPermissions] = useState([]);
+  const [role, setRole] = useState('user');
 
   // Centralized permission options for reuse
   const permissionOptions = [
@@ -37,7 +38,15 @@ const UserFormPage = () => {
   useEffect(() => {
     if (isEditing) {
       loadUser();
+    } else {
+      form.resetFields();
+      setRole('user');
+      setUserType('user');
+      setPermissions([]);
+      setAddress({});
+      setAddressDisabled(false);
     }
+
   }, [id, isEditing]);
 
   const loadUser = async () => {
@@ -52,6 +61,8 @@ const UserFormPage = () => {
       setUserType(user.type);
       setAddress(user.addresses?.[0] || {});
       setPermissions(user.permissions || []);
+      setRole(user.role);
+      console.log(role);
     } catch (error) {
       message.error('Không thể tải thông tin người dùng');
       navigate('/users');
@@ -65,15 +76,35 @@ const UserFormPage = () => {
     setUserType(type);
     // Reset role và permissions khi đổi type
     if (type === 'user') {
+      setRole(type);
       form.setFieldsValue({
-        role: 'user',
+        role: type,
         permissions: []
       });
-    } else {
+      setPermissions([]);
+    } else if (type === 'staff') {
       form.setFieldsValue({
-        role: 'staff',
-        permissions: permissions.length > 0 ? permissions : ['manage_products', 'manage_orders']
+        role: type || 'staff',
+        permissions: [
+          PERMISSIONS.MANAGE_PRODUCTS,
+          PERMISSIONS.MANAGE_ORDERS,
+        ]
       });
+      setRole(type || 'staff');
+    }
+
+  };
+
+  // Khi chọn role là admin thì tự động gán tất cả permissions và type='staff'
+  const handleRoleChange = (value) => {
+    setRole(value);
+    if (userType === 'staff' && value === 'admin') {
+      const allPerms = permissionOptions.map((p) => p.value);
+      setPermissions(allPerms);
+      form.setFieldsValue({ permissions: allPerms });
+    } else {
+      setPermissions([PERMISSIONS.MANAGE_PRODUCTS, PERMISSIONS.MANAGE_ORDERS]);
+      form.setFieldsValue({ permissions: [PERMISSIONS.MANAGE_PRODUCTS, PERMISSIONS.MANAGE_ORDERS] });
     }
   };
 
@@ -99,15 +130,35 @@ const UserFormPage = () => {
         phone: values.phone,
         role: values.role,
         status: values.status ? 'active' : 'inactive',
+        type: values.type
       };
-      if (userType === 'staff') {
+      if (userType === 'staff' && values.role === 'admin') {
+        userData.permissions = permissionOptions.map(p => p.value);
+      } else if (userType === 'staff') {
         userData.permissions = values.permissions || [];
       }
+
       if (userType === 'user' && !addressDisabled) {
-        // đảm bảo là mảng 1 phần tử
-        userData.addresses = Array.isArray(values.addresses)
+
+        const rawAddresses = Array.isArray(values.addresses)
           ? values.addresses
           : [address];
+
+        const addr = rawAddresses[0] || {};
+
+        if (
+          !addr.street?.trim() ||
+          !addr.city?.code ||
+          !addr.district?.code ||
+          !addr.ward?.code
+        ) {
+          // Nếu thiếu bất kỳ phần nào → báo lỗi đẹp
+          throw new Error('Vui lòng điền đầy đủ địa chỉ');
+        }
+
+        // ✅ Nếu hợp lệ thì format trước khi gửi
+        userData.addresses = formatAddresses(addr);
+
       }
 
       if (isEditing) {
@@ -120,15 +171,45 @@ const UserFormPage = () => {
       }
 
     } catch (error) {
-      const keyError = error?.response?.data?.message.split(':');
-      if (keyError && keyError[2].includes('invalid')) {
+      // ✅ Nếu là lỗi custom (do bạn throw)
+      if (!error.response) {
+        return message.error(error.message);
+      }
+
+      // ✅ Nếu là lỗi từ backend có message
+      const serverMessage = error.response?.data?.message;
+      const keyError = serverMessage ? serverMessage.split(':') : null;
+
+      if (keyError && keyError[2]?.includes('Invalid')) {
         message.error(`${keyError[1].toUpperCase()} không hợp lệ!`);
-      } else if (keyError && keyError[2].includes('required')) {
+      } else if (keyError && keyError[2]?.includes('required')) {
         message.error(`Vui lòng điền đầy đủ thông tin ${keyError[1].split('.')[0].toUpperCase()}!`);
+      } else {
+        message.error(serverMessage || "Đã có lỗi xảy ra, vui lòng thử lại");
       }
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const formatAddresses = (addresses) => {
+    if (!addresses) return [];
+
+    return addresses.map((addr) => ({
+      street: addr.street,
+      city: {
+        code: addr.city?.code,
+        name: addr.city?.name,
+      },
+      district: {
+        code: addr.district?.code,
+        name: addr.district?.name,
+      },
+      ward: {
+        code: addr.ward?.code,
+        name: addr.ward?.name,
+      },
+    }));
   };
 
   if (loading) {
@@ -198,7 +279,7 @@ const UserFormPage = () => {
                       name="phone"
                       rules={[
                         { required: true, message: 'Vui lòng nhập số điện thoại!' },
-                        { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại không hợp lệ!' }
+                        { pattern: /^[0-9]{10}$/, message: 'Số điện thoại không hợp lệ!' }
                       ]}
                     >
                       <Input placeholder="Nhập số điện thoại" />
@@ -252,14 +333,14 @@ const UserFormPage = () => {
                       name="role"
                       rules={[{ required: true, message: 'Vui lòng chọn vai trò!' }]}
                     >
-                      <Select placeholder="Chọn vai trò">
+                      <Select placeholder="Chọn vai trò" value={role} onChange={handleRoleChange}>
                         {userType === 'staff' ? (
                           <>
-                            <Option value="admin" selected={userType === 'admin'}>Quản trị viên</Option>
-                            <Option value="staff" selected={userType === 'staff'}>Nhân viên</Option>
+                            <Option value="admin" >Quản trị viên</Option>
+                            <Option value="staff">Nhân viên</Option>
                           </>
                         ) :
-                          <Option value="user" selected={userType === 'user'}>Khách hàng</Option>
+                          <Option value="user">Khách hàng</Option>
                         }
                       </Select>
                     </Form.Item>
@@ -284,7 +365,11 @@ const UserFormPage = () => {
                   <div>
                     <div style={{ fontWeight: 600, marginBottom: 8 }}>Phân quyền</div>
                     <Form.Item name="permissions" label={null}>
-                      <Checkbox.Group options={permissionOptions} />
+                      <Checkbox.Group
+                        options={permissionOptions}
+                        value={permissions}
+                        onChange={(vals) => setPermissions(vals)}
+                      />
                     </Form.Item>
                     <div style={{ fontSize: 12, color: '#888' }}>* Quản trị viên sẽ tự động có tất cả quyền</div>
                   </div>
@@ -295,10 +380,15 @@ const UserFormPage = () => {
                   showIcon
                   message="Lưu ý"
                   description={
-                    <div>
+                    <div style={{ fontSize: 13 }}>
                       <div><strong>Nhân viên:</strong> Có thể truy cập hệ thống quản lý</div>
                       <div><strong>Khách hàng:</strong> Chỉ dùng để lưu thông tin đặt hàng</div>
                       <div><strong>Quản trị viên:</strong> Có toàn quyền truy cập</div>
+                      {!isEditing && (
+                        <div style={{ fontSize: 12, color: '#888', marginTop: 10 }}>
+                          <span style={{ fontStyle: 'italic' }}>* <strong>Mật khẩu mặc định sau khi tạo sẽ dựa theo vai trò bạn chọn. Ví dụ:</strong> <p style={{ color: 'red' }}>{role}12345</p></span>
+                        </div>
+                      )}
                     </div>
                   }
                 />
@@ -312,7 +402,6 @@ const UserFormPage = () => {
         </Card>
       </div>
     </div>
-
   );
 };
 

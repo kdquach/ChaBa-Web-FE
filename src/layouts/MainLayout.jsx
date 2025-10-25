@@ -159,6 +159,9 @@ const MainLayout = () => {
 
   // Xử lý click user menu
   const handleUserMenuClick = ({ key }) => {
+    if (key === "profile") {
+      navigate(`/Profile`);
+    } else if (key === "logout") {
     if (key === 'logout') {
       logout();
       navigate('/login');
@@ -318,6 +321,9 @@ const MainLayout = () => {
               >
                 <Space style={{ cursor: 'pointer' }}>
                   <Avatar
+                    icon={user?.avatar ? "" : <UserOutlined />}
+                    src={user?.avatar}
+                    style={{ backgroundColor: "#52c41a" }}
                     icon={<UserOutlined />}
                     style={{ backgroundColor: '#52c41a' }}
                   />

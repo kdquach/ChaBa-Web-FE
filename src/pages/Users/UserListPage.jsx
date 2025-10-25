@@ -39,6 +39,7 @@ const UserListPage = () => {
 
       const response = await getUsers(queryParams);
       setUsers(response.data);
+      console.log("🚀 ~ loadData ~ response.data:", response.data)
       setPagination(prev => ({
         ...prev,
         total: response.pagination.total,

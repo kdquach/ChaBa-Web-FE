@@ -28,6 +28,7 @@ import ToppingFormPage from "../pages/Toppings/ToppingFormPage";
 import CategoryListPage from "../pages/Categories/CategoryListPage";
 import CategoryFormPage from "../pages/Categories/CategoryFormPage";
 import GoogleCallback from "../pages/Auth/GoogleCallback";
+import ProfilePage from "../pages/Profile/ProfilePage";
 import IngredientCategoryListPage from '../pages/IngredientCategory/IngredientCategoryListPage';
 import IngredientCategoryFormPage from '../pages/IngredientCategory/IngredientCategoryFormPage';
 
@@ -165,6 +166,9 @@ const AppRoutes = () => {
           element={<IngredientCategoryFormPage />}
         />
         <Route path="toppings/:id/:mode" element={<ToppingFormPage />} />
+
+        {/* Quản lý profile */}
+        <Route path="Profile" element={<ProfilePage />} />
       </Route>
 
       {/* Route mặc định - chuyển hướng về dashboard */}

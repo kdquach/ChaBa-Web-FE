@@ -1,3 +1,4 @@
+import { data } from 'react-router-dom';
 import apiClient from './client';
 
 // Mock data cho users (nhân viên và khách hàng)
@@ -126,39 +127,50 @@ export const getUser = async (id) => {
 // Tạo user mới
 export const createUser = async (data) => {
   try {
-    let { password, type } = data;
-    if (!password && type) {
+    let { role } = data;
+    let password;
+    if (!Object.keys(data).includes('password') && role) {
       // Tạo password random theo type VD: staff12345, user12345
-      password = `${type}12345`;
+
+      password = `${role}12345`;
     }
-    const res = await apiClient.post('/users', { ...data, password });
+    const res = await apiClient.post('/users', { ...data, password }, { silentError: true });
     return res;
   } catch (err) {
-    const status = err?.response?.status;
-    if (status === 401 || status === 403) {
-      // Fallback dev
-      const newUser = {
-        id: Math.max(...mockUsers.map((u) => u.id)) + 1,
-        ...data,
-        status: data.status || 'active',
-        permissions: data.permissions || [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      mockUsers.push(newUser);
-      return newUser;
-    }
     throw err;
-  }
-};
+
+  };
+}
 
 // Cập nhật user
 export const updateUser = async (id, data) => {
   try {
-    const res = await apiClient.patch(`/users/${id}`, data, { silentError: true });
+    const formData = new FormData();
+
+    for (const key in data) {
+      if (key === "addresses") {
+        formData.append("addresses", JSON.stringify(data.addresses));
+        continue;
+      }
+
+      if (key === "avatar" && data.avatar?.originFileObj) {
+        formData.append("avatar", data.avatar.originFileObj);
+        continue;
+      }
+
+      if (data[key] !== undefined && data[key] !== null) {
+        formData.append(key, data[key]);
+      }
+    }
+
+    const res = await apiClient.patch(`/users/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      silentError: true,
+    });
     return res;
   } catch (err) {
-    console.log("🚀 ~ updateUser ~ err:", err)
     const status = err?.response?.status;
     if (status === 401 || status === 403) {
       // Fallback dev
@@ -169,11 +181,11 @@ export const updateUser = async (id, data) => {
   }
 };
 
+
 // Xóa user
 export const deleteUser = async (id) => {
   try {
     const response = await apiClient.delete(`/users/${id}`);
-    console.log("🚀 ~ deleteUser ~ response:", response)
     return response;
   } catch (err) {
     const status = err?.response?.status;

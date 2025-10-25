@@ -68,10 +68,14 @@ export const updateProfile = async (userData) => {
  * @param {string} passwordData.newPassword - Mật khẩu mới
  * @returns {Promise<{success: boolean, message: string}>} - Kết quả thay đổi mật khẩu
  */
-export const changePassword = async (passwordData) => {
-  const response = await apiClient.put("/auth/change-password", passwordData);
-  return response;
-};
+export const changePassword = async (data) => {
+  try {
+    const res = await apiClient.patch('/auth/change-password', data);
+    return res;
+  } catch (error) {
+    throw error;
+  }
+}
 
 /**
  * Yêu cầu đặt lại mật khẩu
