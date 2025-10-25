@@ -70,12 +70,12 @@ export const updateProfile = async (userData) => {
  */
 export const changePassword = async (data) => {
   try {
-    const res = await apiClient.patch('/auth/change-password', data);
+    const res = await apiClient.patch("/auth/change-password", data);
     return res;
   } catch (error) {
     throw error;
   }
-}
+};
 
 /**
  * Yêu cầu đặt lại mật khẩu
