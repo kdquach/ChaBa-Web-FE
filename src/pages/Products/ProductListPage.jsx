@@ -291,7 +291,20 @@ const ProductListPage = () => {
         </Space>
       ),
     },
-
+    {
+      title: "Toppings",
+      dataIndex: "toppings",
+      key: "toppings",
+      render: (toppings) => (
+        <Space direction="vertical">
+          {toppings && toppings.length > 0 ? (
+            <Tag color="orange">{toppings.length} Topping</Tag>
+          ) : (
+            <span style={{ color: "#999" }}>Không có</span>
+          )}
+        </Space>
+      ),
+    },
     {
       title: "Thao tác",
       key: "actions",
