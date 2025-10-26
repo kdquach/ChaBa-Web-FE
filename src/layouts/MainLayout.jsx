@@ -97,6 +97,15 @@ const MainLayout = () => {
       ],
     },
     {
+      key: '/addresses',
+      icon: <InboxOutlined />,
+      label: 'Quản lý địa chỉ',
+      children: [
+        { key: '/addresses', label: 'Danh sách địa chỉ' },
+        { key: '/addresses/new', label: 'Thêm địa chỉ' },
+      ],
+    },
+    {
       key: '/ingredients',
       icon: <InboxOutlined />,
       label: 'Quản lý nguyên liệu',
