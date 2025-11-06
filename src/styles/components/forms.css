@@ -1,0 +1,33 @@
+/* Input & Search focus colors to use primary */
+.ant-input:focus,
+.ant-input:hover,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused,
+.ant-input-affix-wrapper:hover {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 18%, transparent) !important;
+}
+
+/* Search enter button */
+.ant-input-search .ant-input-search-button,
+.ant-input-search .ant-input-search-button.ant-btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #fff !important;
+}
+.ant-input-search .ant-input-search-button:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 92%, #000) !important;
+  border-color: color-mix(in srgb, var(--color-primary) 92%, #000) !important;
+}
+.ant-input-search .ant-input-search-button:active {
+  background-color: color-mix(in srgb, var(--color-primary) 86%, #000) !important;
+  border-color: color-mix(in srgb, var(--color-primary) 86%, #000) !important;
+}
+
+/* Clear icon alignment and color */
+.ant-input-clear-icon {
+  color: var(--color-text-muted);
+}
+.ant-input-clear-icon:hover {
+  color: var(--color-primary);
+}

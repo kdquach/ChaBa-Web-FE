@@ -1,0 +1,75 @@
+.chart-card {
+  border: none;
+  border-radius: var(--border-radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.chart-card .ant-card-head {
+  padding: 1rem 1.5rem;
+}
+
+.chart-card .ant-card-body {
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+/* Chart theme variables (green-brown) */
+:root {
+  --chart-green: var(--color-primary);
+  --chart-brown: var(--color-text-dark);
+  --chart-accent: var(--color-accent);
+}
+
+/* Tooltip styling for G2/G2Plot */
+.chart-card .g2-tooltip {
+  background: var(--color-surface) !important;
+  color: var(--color-text-dark) !important;
+  border: var(--border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--card-shadow) !important;
+  padding: 10px 12px !important;
+}
+.chart-card .g2-tooltip-list-item-name, 
+.chart-card .g2-tooltip-list-item-value {
+  color: var(--color-text-dark) !important;
+}
+
+/* ApexCharts tooltip & legend */
+.chart-card .apexcharts-tooltip {
+  background: var(--color-surface) !important;
+  color: var(--color-text-dark) !important;
+  border: var(--border) !important;
+  box-shadow: var(--card-shadow) !important;
+  border-radius: 10px !important;
+}
+.chart-card .apexcharts-legend-text {
+  color: var(--color-text-muted) !important;
+}
+.chart-card .apexcharts-legend {
+  padding-top: 6px;
+}
+
+/* Legend and axis text to muted tone */
+.chart-card svg .g2-legend-item-name,
+.chart-card svg .legend-item-name,
+.chart-card svg .g2-axis text {
+  fill: var(--color-text-muted) !important;
+}
+/* Grid/axis line soft color */
+.chart-card svg .g2-axis-line, 
+.chart-card svg .g2-grid-line line {
+  stroke: var(--color-border) !important;
+}
+
+/* Donut center statistic */
+.chart-card .g2-html-annotation .g2-html-annotation-content {
+  color: var(--chart-brown);
+  font-weight: 600;
+}
+
+/* Range picker/select in chart headers */
+.chart-card .ant-picker, .chart-card .ant-select-selector {
+  border-radius: 10px !important;
+  border: var(--border) !important;
+}

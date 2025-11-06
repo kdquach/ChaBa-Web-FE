@@ -1,0 +1,44 @@
+/* App shell layout styling */
+.app-shell .ant-layout-sider {
+   background: transparent;
+}
+
+.app-shell .ant-layout-sider-children {
+   padding-top: 8px;
+}
+
+.app-shell .logo-box {
+   height: 64px;
+   margin: 12px 12px 8px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   border-radius: var(--border-radius);
+   background: var(--color-surface);
+}
+
+.app-header {
+   background: transparent !important;
+}
+
+.app-content {
+   background: transparent !important;
+}
+
+.content-inner {
+   background: var(--color-surface);
+   border: var(--border);
+   border-radius: var(--border-radius-lg);
+   box-shadow: var(--card-shadow);
+   padding: 24px;
+}
+
+/* Breadcrumb spacing */
+.app-breadcrumb {
+   margin: 0 16px;
+}
+
+/* Toggle button focus */
+.sider-toggle.ant-btn-text:hover {
+   color: var(--color-primary);
+}

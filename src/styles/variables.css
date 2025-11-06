@@ -1,0 +1,48 @@
+:root {
+  /* Light Mode Color Palette */
+  --color-primary: #00ac45;      /* primary */
+  --color-background: #fffcfc;   /* app background */
+  --color-surface: #ffffff;      /* cards */
+  --color-accent: #eac784;       /* accent */
+  --color-text-dark: #362415;    /* main text */
+  --color-text-muted: #604c4c;   /* secondary text */
+  --color-border: rgba(1, 50, 55, 0.06);
+
+  /* Radius */
+  --border-radius-lg: 2rem;
+  --border-radius: 1rem;
+  --border-radius-sm: 0.5rem;
+
+  /* Border & Shadow */
+  --border: 1px solid var(--color-border);
+  --card-shadow: 0 8px 24px rgba(1, 50, 55, 0.08);
+
+  /* Font */
+  --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Transition */
+  --transition-fast: 0.2s ease-in-out;
+  --transition-slow: 0.4s ease;
+
+  /* Semantic colors */
+  --color-success-strong: #0b421a; /* vivid success */
+  --color-danger: #b90000;        /* dark danger */
+  --color-danger-bright: #ff2222; /* bright danger */
+  --color-warning: #ffbc00;       /* warning */
+  --color-warning-light: #fff887; /* soft warning */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #eac784;
+    --color-background: #0b421a;
+    --color-surface: #183c26;
+    --color-accent: #fffcfc;
+    --color-text-dark: #fffcfc;
+    --color-text-muted: #d5cfcf;
+    --color-border: rgba(255, 255, 255, 0.1);
+
+    --border: 1px solid var(--color-border);
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}

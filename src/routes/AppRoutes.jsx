@@ -27,8 +27,6 @@ import CategoryFormPage from "../pages/Categories/CategoryFormPage";
 import GoogleCallback from "../pages/Auth/GoogleCallback";
 import IngredientCategoryListPage from '../pages/IngredientCategory/IngredientCategoryListPage';
 import IngredientCategoryFormPage from '../pages/IngredientCategory/IngredientCategoryFormPage';
-import AddressListPage from "../pages/Addresses/AddressListPage";
-import AddressFormPage from "../pages/Addresses/AddressFormPage";
 
 const AppRoutes = () => {
   const { loading } = useAuth();
@@ -83,9 +81,9 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        {/* Dashboard */}
-        <Route index element={<DashboardPage />} />
-        <Route path="dashboard" element={<DashboardPage />} />
+  {/* Dashboard */}
+  <Route index element={<DashboardPage />} />
+  <Route path="dashboard" element={<DashboardPage />} />
 
         {/* Quản lý sản phẩm */}
         <Route path="products" element={<ProductListPage />} />
@@ -120,10 +118,7 @@ const AppRoutes = () => {
         <Route path="categories" element={<CategoryListPage />} />
         <Route path="categories/new" element={<CategoryFormPage />} />
         <Route path="categories/:id/edit" element={<CategoryFormPage />} />
-  {/* Quản lý địa chỉ */}
-  <Route path="addresses" element={<AddressListPage />} />
-  <Route path="addresses/new" element={<AddressFormPage />} />
-  <Route path="addresses/:id/edit" element={<AddressFormPage />} />
+
         {/* 🟣 Quản lý loại nguyên liệu (Ingredient Category) */}
         <Route
           path="ingredient-categories"

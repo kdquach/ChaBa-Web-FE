@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, DatePicker, Select, Space } from "antd";
 import dayjs from "dayjs";
-import { Area } from "@ant-design/plots";
+import ReactApexChart from "react-apexcharts";
 import { getRevenueAnalytics } from "../../api/orders";
 
 const { RangePicker } = DatePicker;
@@ -43,21 +43,59 @@ const RevenueAreaChart = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.from, params.to, params.groupBy]);
 
-  const config = {
-    data: series,
-    xField: "time",
-    yField: "revenue",
-    height: 300,
-    smooth: true,
-    areaStyle: { fillOpacity: 0.3 },
-    color: "#52c41a",
+  // Read CSS variable for primary color so chart follows theme
+  const css = (name, fallback) =>
+    typeof window !== 'undefined'
+      ? getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback
+      : fallback;
+  const primaryColor = css('--color-primary', '#00ac45');
+  const mutedColor = css('--color-text-muted', '#6b7280');
+  const gridColor = css('--color-border', 'rgba(1,50,55,0.06)');
+  const accentColor = css('--color-accent', '#eac784');
+
+  const apexOptions = {
+    chart: {
+      type: "area",
+      animations: { enabled: true, easing: "easeinout", speed: 600 },
+      toolbar: { show: false },
+      foreColor: mutedColor,
+    },
+    colors: [primaryColor],
+    dataLabels: { enabled: false },
+    stroke: { curve: "smooth", width: 3 },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shade: "light",
+        type: "vertical",
+        shadeIntensity: 0.3,
+        gradientToColors: [primaryColor],
+        inverseColors: false,
+        opacityFrom: 0.35,
+        opacityTo: 0.05,
+        stops: [0, 60, 100],
+      },
+    },
+    grid: { borderColor: gridColor },
+    xaxis: {
+      type: "category",
+      labels: { rotate: -45 },
+    },
+    yaxis: {
+      labels: {
+        formatter: (val) => (val >= 1000 ? `${Math.round(val / 1000)}k` : `${val}`),
+      },
+    },
     tooltip: {
-      formatter: (d) => ({ name: "Doanh thu", value: `${(d.revenue || 0).toLocaleString()} ₫` }),
+      y: {
+        formatter: (val) => `${(val || 0).toLocaleString()} ₫`,
+      },
     },
   };
 
   return (
     <Card
+      className="chart-card"
       title="Doanh thu theo thời gian"
       extra={
         <Space>
@@ -76,7 +114,12 @@ const RevenueAreaChart = () => {
       }
       loading={loading}
     >
-      <Area {...config} />
+      <ReactApexChart
+        type="area"
+        options={apexOptions}
+        series={[{ name: "Doanh thu", data: series.map((d) => ({ x: d.time, y: d.revenue })) }]}
+        height={300}
+      />
     </Card>
   );
 };

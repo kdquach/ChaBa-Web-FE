@@ -45,13 +45,13 @@ const PageHeader = ({
                 style={{ marginRight: 8 }}
               />
             )}
-            <Title level={2} style={{ margin: 0 }}>
+            <Title level={2} style={{ margin: 0, color: 'var(--color-primary)' }}>
               {title}
             </Title>
           </div>
           {subtitle && (
             <p style={{ 
-              color: '#666', 
+              color: 'var(--color-text-muted)', 
               margin: 0,
               fontSize: 14,
               marginLeft: showBack ? 40 : 0

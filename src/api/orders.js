@@ -392,6 +392,6 @@ export const getTopProducts = async ({ from, to, limit = 10 } = {}) => {
   rows.sort((a, b) => b.quantity - a.quantity);
   const top = rows.slice(0, limit);
   const totalQty = top.reduce((s, r) => s + r.quantity, 0) || 1;
-  // Pie values as percentage
-  return top.map((r) => ({ type: r.name, value: r.quantity, percent: r.quantity / totalQty }));
+  // Pie values as percentage, include revenue for tooltip/details
+  return top.map((r) => ({ type: r.name, value: r.quantity, percent: r.quantity / totalQty, revenue: r.revenue }));
 };
