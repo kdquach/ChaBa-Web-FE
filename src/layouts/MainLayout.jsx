@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Layout,
   Menu,
@@ -10,7 +10,7 @@ import {
   Badge,
   Space,
   Typography,
-} from 'antd';
+} from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -23,8 +23,8 @@ import {
   LogoutOutlined,
   SettingOutlined,
   BellOutlined,
-} from '@ant-design/icons';
-import { useAuth } from '../hooks/useAuth';
+} from "@ant-design/icons";
+import { useAuth } from "../hooks/useAuth";
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -38,9 +38,9 @@ const MainLayout = () => {
   // Menu items cho sidebar
   const menuItems = [
     {
-      key: '/',
+      key: "/",
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: "Dashboard",
     },
     {
       key: "/categories",
@@ -54,76 +54,76 @@ const MainLayout = () => {
     {
       key: "/products",
       icon: <ShoppingOutlined />,
-      label: 'Quản lý sản phẩm',
+      label: "Quản lý sản phẩm",
       children: [
         {
-          key: '/products',
-          label: 'Danh sách sản phẩm',
+          key: "/products",
+          label: "Danh sách sản phẩm",
         },
         {
-          key: '/products/new',
-          label: 'Thêm sản phẩm mới',
+          key: "/products/new",
+          label: "Thêm sản phẩm mới",
         },
       ],
     },
     {
-      key: '/orders',
+      key: "/orders",
       icon: <OrderedListOutlined />,
-      label: 'Quản lý đơn hàng',
+      label: "Quản lý đơn hàng",
       children: [
         {
-          key: '/orders',
-          label: 'Danh sách đơn hàng',
+          key: "/orders",
+          label: "Danh sách đơn hàng",
         },
         {
-          key: '/orders/new',
-          label: 'Tạo đơn hàng',
+          key: "/orders/new",
+          label: "Tạo đơn hàng",
         },
       ],
     },
     {
-      key: '/users',
+      key: "/users",
       icon: <UserOutlined />,
-      label: 'Quản lý người dùng',
+      label: "Quản lý người dùng",
       children: [
         {
-          key: '/users',
-          label: 'Danh sách người dùng',
+          key: "/users",
+          label: "Danh sách người dùng",
         },
         {
-          key: '/users/new',
-          label: 'Thêm người dùng',
+          key: "/users/new",
+          label: "Thêm người dùng",
         },
       ],
     },
     {
-      key: '/ingredients',
+      key: "/ingredients",
       icon: <InboxOutlined />,
-      label: 'Quản lý nguyên liệu',
+      label: "Quản lý nguyên liệu",
       children: [
         {
-          key: '/ingredients',
-          label: 'Danh sách nguyên liệu',
+          key: "/ingredients",
+          label: "Danh sách nguyên liệu",
         },
         // {
         //   key: '/ingredients/new',
         //   label: 'Thêm nguyên liệu',
         // },
-        { key: '/ingredient-categories', label: 'Danh sách loại nguyên liệu' },
+        { key: "/ingredient-categories", label: "Danh sách loại nguyên liệu" },
       ],
     },
     {
-      key: '/toppings',
+      key: "/toppings",
       icon: <PlusOutlined />,
-      label: 'Quản lý topping',
+      label: "Quản lý topping",
       children: [
         {
-          key: '/toppings',
-          label: 'Danh sách topping',
+          key: "/toppings",
+          label: "Danh sách topping",
         },
         {
-          key: '/toppings/new',
-          label: 'Thêm topping',
+          key: "/toppings/new",
+          label: "Thêm topping",
         },
       ],
     },
@@ -145,22 +145,22 @@ const MainLayout = () => {
   // Dropdown menu cho user
   const userMenuItems = [
     {
-      key: 'profile',
+      key: "profile",
       icon: <UserOutlined />,
-      label: 'Thông tin cá nhân',
+      label: "Thông tin cá nhân",
     },
     {
-      key: 'settings',
+      key: "settings",
       icon: <SettingOutlined />,
-      label: 'Cài đặt',
+      label: "Cài đặt",
     },
     {
-      type: 'divider',
+      type: "divider",
     },
     {
-      key: 'logout',
+      key: "logout",
       icon: <LogoutOutlined />,
-      label: 'Đăng xuất',
+      label: "Đăng xuất",
       danger: true,
     },
   ];
@@ -172,20 +172,22 @@ const MainLayout = () => {
 
   // Xử lý click user menu
   const handleUserMenuClick = ({ key }) => {
-    if (key === 'logout') {
+    if (key === "profile") {
+      navigate(`/Profile`);
+    } else if (key === "logout") {
       logout();
-      navigate('/login');
+      navigate("/login");
     }
     // Xử lý các menu item khác
   };
 
   // Tạo breadcrumb từ current path
   const generateBreadcrumb = () => {
-    const pathSnippets = location.pathname.split('/').filter((i) => i);
+    const pathSnippets = location.pathname.split("/").filter((i) => i);
     const breadcrumbItems = [
       {
-        title: 'Trang chủ',
-        href: '/',
+        title: "Trang chủ",
+        href: "/",
       },
     ];
 
@@ -201,7 +203,7 @@ const MainLayout = () => {
     };
 
     pathSnippets.forEach((snippet, index) => {
-      const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+      const url = `/${pathSnippets.slice(0, index + 1).join("/")}`;
       const title = pathMap[snippet] || snippet;
 
       breadcrumbItems.push({
@@ -225,7 +227,7 @@ const MainLayout = () => {
   }, []);
 
   return (
-    <Layout className="app-shell" style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
       <Sider
         trigger={null}
@@ -235,9 +237,9 @@ const MainLayout = () => {
         width={250}
         className="app-sider"
         style={{
-          overflow: 'auto',
-          height: '100vh',
-          position: 'fixed',
+          overflow: "auto",
+          height: "100vh",
+          position: "fixed",
           left: 0,
           top: 0,
           bottom: 0,
@@ -247,15 +249,23 @@ const MainLayout = () => {
           setCollapsed(broken);
         }}
       >
-        <div className="logo-box">
+        <div
+          style={{
+            height: 64,
+            margin: 16,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <Title
             level={4}
             style={{
-              color: 'var(--color-text-dark)',
+              color: "white",
               margin: 0,
               fontSize: collapsed ? 16 : 18,
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               gap: 8, // khoảng cách giữa logo và chữ
             }}
           >
@@ -263,10 +273,11 @@ const MainLayout = () => {
               src={collapsed ? "../../assets/Logo.png" : "../../assets/Logo-expand.png"}
               alt="TheTrois Logo"
               style={{
-                width: collapsed ? 40 : 120,
-                height: 'auto',
+                width: collapsed ? 40 : 50,
+                height: "auto",
               }}
             />
+            {collapsed ? "" : "The Trois"}
           </Title>
         </div>
 
@@ -275,9 +286,9 @@ const MainLayout = () => {
           mode="inline"
           selectedKeys={[location.pathname]}
           defaultOpenKeys={[
-            location.pathname.split('/')[1]
-              ? `/${location.pathname.split('/')[1]}`
-              : '/',
+            location.pathname.split("/")[1]
+              ? `/${location.pathname.split("/")[1]}`
+              : "/",
           ]}
           inlineCollapsed={collapsed}
           items={menuData}
@@ -292,18 +303,20 @@ const MainLayout = () => {
           className="app-header"
           style={{
             padding: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            background: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            boxShadow: "0 1px 4px rgba(0,21,41,.08)",
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
               style={{
-                fontSize: '16px',
+                fontSize: "16px",
                 width: 64,
                 height: 64,
               }}
@@ -313,12 +326,16 @@ const MainLayout = () => {
             <Breadcrumb
               className="app-breadcrumb"
               items={generateBreadcrumb()}
-              style={{ margin: '0 16px' }}
+              style={{ margin: "0 16px" }}
             />
           </div>
 
           <div
-            style={{ display: 'flex', alignItems: 'center', paddingRight: 24 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              paddingRight: 24,
+            }}
           >
             <Space size={16}>
               {/* Notification Bell */}
@@ -337,12 +354,13 @@ const MainLayout = () => {
                   onClick: handleUserMenuClick,
                 }}
                 placement="bottomRight"
-                trigger={['click']}
+                trigger={["click"]}
               >
-                <Space style={{ cursor: 'pointer' }}>
+                <Space style={{ cursor: "pointer" }}>
                   <Avatar
-                    icon={<UserOutlined />}
-                    style={{ backgroundColor: '#52c41a' }}
+                    src={user?.avatar}
+                    icon={user?.avatar ? null : <UserOutlined />}
+                    style={{ backgroundColor: "#52c41a" }}
                   />
                   <span>{user?.name}</span>
                 </Space>
@@ -355,8 +373,11 @@ const MainLayout = () => {
         <Content
           className="app-content"
           style={{
-            margin: '24px 16px',
+            margin: "24px 16px",
+            padding: 24,
             minHeight: 280,
+            background: "#fff",
+            borderRadius: 6,
           }}
         >
           <div className="content-inner">

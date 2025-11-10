@@ -36,10 +36,12 @@ export const fetchProductById = async (productId) => {
  */
 export const createProduct = async (data) => {
   const formData = new FormData();
+
   formData.append("name", data.name);
   formData.append("price", data.price);
   formData.append("categoryId", data.categoryId);
   formData.append("status", data.status);
+
   if (data.description) {
     formData.append("description", data.description);
   }
@@ -48,11 +50,29 @@ export const createProduct = async (data) => {
     formData.append("image", data.image.originFileObj); // gửi file binary
   }
 
+  // ✅ Gửi công thức có ingredientId + quantity
+  if (Array.isArray(data.recipe)) {
+    data.recipe.forEach((item, index) => {
+      if (item.ingredientId)
+        formData.append(`recipe[${index}][ingredientId]`, item.ingredientId);
+      if (item.quantity != null)
+        formData.append(`recipe[${index}][quantity]`, item.quantity);
+    });
+  }
+
+  // ✅ Gửi topping
+  if (Array.isArray(data.toppings)) {
+    data.toppings.forEach((topping, index) => {
+      formData.append(`toppings[${index}]`, topping);
+    });
+  }
+
   const res = await apiClient.post("/products", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
+
   return res;
 };
 
@@ -77,11 +97,31 @@ export const updateProduct = async (productId, data) => {
     if (data.price) formData.append("price", data.price);
     if (data.categoryId) formData.append("categoryId", data.categoryId);
     if (data.status) formData.append("status", data.status);
-    if (data.description) formData.append("description", data.description);
+
+    if (data.description) {
+      formData.append("description", data.description);
+    }
 
     // Handle image update
     if (data.image && data.image.originFileObj) {
       formData.append("image", data.image.originFileObj);
+    }
+
+    // ✅ Gửi công thức có ingredientId + quantity
+    if (Array.isArray(data.recipe)) {
+      data.recipe.forEach((item, index) => {
+        if (item.ingredientId)
+          formData.append(`recipe[${index}][ingredientId]`, item.ingredientId);
+        if (item.quantity != null)
+          formData.append(`recipe[${index}][quantity]`, item.quantity);
+      });
+    }
+
+    // ✅ Gửi topping
+    if (Array.isArray(data.toppings)) {
+      data.toppings.forEach((topping, index) => {
+        formData.append(`toppings[${index}]`, topping);
+      });
     }
 
     const response = await apiClient.patch(`/products/${productId}`, formData, {

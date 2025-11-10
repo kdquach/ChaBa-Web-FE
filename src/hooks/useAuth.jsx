@@ -95,14 +95,14 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       const response = await registerAPI(userData);
 
-      if (!response?.user) {
-        throw new Error("Invalid registration response format");
+      // Kiểm tra nếu API có message hợp lệ
+      if (!response?.message) {
+        throw new Error(
+          "Đăng ký thất bại. Không nhận được phản hồi từ server."
+        );
       }
 
-      // KHÔNG lưu token và user vào localStorage
-      // KHÔNG set user state
-      // Chỉ trả về response để component biết đăng ký thành công
-
+      // ✅ Trả về message để component hiển thị hoặc chuyển sang màn OTP
       return response;
     } catch (error) {
       console.error("Registration error:", error);
