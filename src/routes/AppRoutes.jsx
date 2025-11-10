@@ -115,9 +115,9 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        {/* Dashboard */}
-        <Route index element={<DashboardPage />} />
-        <Route path="dashboard" element={<DashboardPage />} />
+  {/* Dashboard */}
+  <Route index element={<DashboardPage />} />
+  <Route path="dashboard" element={<DashboardPage />} />
 
         {/* Quản lý sản phẩm */}
         <Route path="products" element={<ProductListPage />} />
@@ -152,6 +152,7 @@ const AppRoutes = () => {
         <Route path="categories" element={<CategoryListPage />} />
         <Route path="categories/new" element={<CategoryFormPage />} />
         <Route path="categories/:id/edit" element={<CategoryFormPage />} />
+
         {/* 🟣 Quản lý loại nguyên liệu (Ingredient Category) */}
         <Route
           path="ingredient-categories"

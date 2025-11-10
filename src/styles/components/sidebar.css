@@ -1,0 +1,29 @@
+/* Sidebar menu refinements */
+.app-sider .ant-menu {
+  background: var(--color-surface);
+  padding: 10px;
+  border: none !important;
+}
+.app-sider .ant-menu-item,
+.app-sider .ant-menu-submenu-title {
+  border-radius: 10px;
+}
+
+/* Selected (active) state uses primary color */
+.app-sider .ant-menu-item-selected,
+.app-sider .ant-menu-submenu-selected > .ant-menu-submenu-title {
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  color: var(--color-primary) !important;
+}
+
+/* Hover and focus states */
+.app-sider .ant-menu-item:hover,
+.app-sider .ant-menu-submenu-title:hover,
+.app-sider .ant-menu-item-active,
+.app-sider .ant-menu-submenu-title:focus-visible {
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  color: var(--color-primary) !important;
+}
+
+/* Collapsed width nicety */
+.app-sider .ant-layout-sider-trigger { background: var(--color-surface); }

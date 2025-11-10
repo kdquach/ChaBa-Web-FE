@@ -1,282 +1,244 @@
-import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Statistic, Table, Tag, Progress, Alert } from 'antd';
-import {
-  ShoppingOutlined,
-  OrderedListOutlined,
-  UserOutlined,
-  DollarOutlined,
-  TeamOutlined,
-  WarningOutlined,
-} from '@ant-design/icons';
-import PageHeader from '../../components/PageHeader';
-import LoadingSpinner from '../../components/LoadingSpinner';
-import { getOrderStats } from '../../api/orders';
-import { getUserStats } from '../../api/users';
-// import { getStockAlerts } from "../../api/ingredients";
+  import React, { useState, useEffect } from 'react';
+  import { Row, Col, Card, Table, Tag } from 'antd';
+  import {
+    ShoppingOutlined,
+    OrderedListOutlined,
+    UserOutlined,
+    DollarOutlined,
+    TeamOutlined,
+    WarningOutlined,
+  } from '@ant-design/icons';
+  import PageHeader from '../../components/PageHeader';
+  import LoadingSpinner from '../../components/LoadingSpinner';
+  import OverviewStats from './OverviewStats';
+  import RevenueAreaChart from './RevenueAreaChart';
+  import TopProductsPie from './TopProductsPie';
+  import { getOrderStats } from '../../api/orders';
+  import { getUserStats } from '../../api/users';
+  // import { getStockAlerts } from "../../api/ingredients";
 
-const DashboardPage = () => {
-  const [loading, setLoading] = useState(true);
-  const [orderStats, setOrderStats] = useState({});
-  const [userStats, setUserStats] = useState({});
-  const [stockAlerts, setStockAlerts] = useState([]);
+  const DashboardPage = () => {
+    const [loading, setLoading] = useState(true);
+    const [orderStats, setOrderStats] = useState({});
+    const [userStats, setUserStats] = useState({});
+    const [stockAlerts, setStockAlerts] = useState([]);
+    const vnd = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
-  // Mock dữ liệu gần đây
-  const recentOrders = [
-    {
-      key: '1',
-      orderNumber: 'ORD001',
-      customer: 'Nguyễn Văn A',
-      total: 85000,
-      status: 'completed',
-    },
-    {
-      key: '2',
-      orderNumber: 'ORD002',
-      customer: 'Trần Thị B',
-      total: 30000,
-      status: 'processing',
-    },
-    {
-      key: '3',
-      orderNumber: 'ORD003',
-      customer: 'Lê Văn C',
-      total: 93000,
-      status: 'pending',
-    },
-  ];
-
-  const recentOrderColumns = [
-    {
-      title: 'Mã đơn hàng',
-      dataIndex: 'orderNumber',
-      key: 'orderNumber',
-    },
-    {
-      title: 'Khách hàng',
-      dataIndex: 'customer',
-      key: 'customer',
-    },
-    {
-      title: 'Tổng tiền',
-      dataIndex: 'total',
-      key: 'total',
-      render: (value) => `${value.toLocaleString()} ₫`,
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        const statusConfig = {
-          pending: { color: 'orange', text: 'Chờ xử lý' },
-          processing: { color: 'blue', text: 'Đang xử lý' },
-          completed: { color: 'green', text: 'Hoàn thành' },
-          cancelled: { color: 'red', text: 'Đã hủy' },
-        };
-        const config = statusConfig[status] || statusConfig.pending;
-        return <Tag color={config.color}>{config.text}</Tag>;
+    // Mock dữ liệu gần đây
+    const recentOrders = [
+      {
+        key: '1',
+        orderNumber: 'ORD001',
+        customer: 'Nguyễn Văn A',
+        total: 85000,
+        status: 'completed',
       },
-    },
-  ];
+      {
+        key: '2',
+        orderNumber: 'ORD002',
+        customer: 'Trần Thị B',
+        total: 30000,
+        status: 'processing',
+      },
+      {
+        key: '3',
+        orderNumber: 'ORD003',
+        customer: 'Lê Văn C',
+        total: 93000,
+        status: 'pending',
+      },
+    ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [orders, users, alerts] = await Promise.all([
-          getOrderStats(),
-          getUserStats(),
-          // getStockAlerts(),
-        ]);
+    const recentOrderColumns = [
+      {
+        title: 'Mã đơn hàng',
+        dataIndex: 'orderNumber',
+        key: 'orderNumber',
+      },
+      {
+        title: 'Khách hàng',
+        dataIndex: 'customer',
+        key: 'customer',
+      },
+      {
+        title: 'Tổng tiền',
+        dataIndex: 'total',
+        key: 'total',
+        render: (value) => vnd.format(Number(value || 0)),
+      },
+      {
+        title: 'Trạng thái',
+        dataIndex: 'status',
+        key: 'status',
+        render: (status) => {
+          const statusConfig = {
+            pending: { color: 'orange', text: 'Chờ xử lý' },
+            processing: { color: 'blue', text: 'Đang xử lý' },
+            completed: { color: 'green', text: 'Hoàn thành' },
+            cancelled: { color: 'red', text: 'Đã hủy' },
+          };
+          const config = statusConfig[status] || statusConfig.pending;
+          return <Tag color={config.color}>{config.text}</Tag>;
+        },
+      },
+    ];
 
-        setOrderStats(orders);
-        setUserStats(users);
-        setStockAlerts(alerts);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          const [orders, users, alerts] = await Promise.all([
+            getOrderStats(),
+            getUserStats(),
+            // getStockAlerts(),
+          ]);
 
-    fetchData();
-  }, []);
+          setOrderStats(orders);
+          setUserStats(users);
+          setStockAlerts(alerts);
+        } catch (error) {
+          console.error('Error fetching dashboard data:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-  if (loading) {
-    return <LoadingSpinner tip="Đang tải dashboard..." />;
-  }
+      fetchData();
+    }, []);
 
-  return (
-    <div>
-      <PageHeader title="Dashboard" subtitle="Tổng quan hoạt động kinh doanh" />
+    if (loading) {
+      return <LoadingSpinner tip="Đang tải dashboard..." />;
+    }
 
-      {/* Cảnh báo nguyên liệu */}
-      {/* {stockAlerts.length > 0 && (
-        <Alert
-          message={`Cảnh báo: ${stockAlerts.length} nguyên liệu sắp hết hoặc đã hết hàng`}
-          description={
-            <div>
-              {stockAlerts.slice(0, 3).map((alert) => (
-                <div key={alert.id}>
-                  <strong>{alert.name}:</strong> {alert.currentStock}/
-                  {alert.minStock}{' '}
-                  {alert.type === 'out_of_stock' ? '(Hết hàng)' : '(Sắp hết)'}
-                </div>
-              ))}
-              {stockAlerts.length > 3 && (
-                <div>... và {stockAlerts.length - 3} nguyên liệu khác</div>
-              )}
-            </div>
-          }
-          type="warning"
-          icon={<WarningOutlined />}
-          showIcon
-          closable
-          style={{ marginBottom: 24 }}
-        />
-      )} */}
+    return (
+      <div>
+        <PageHeader title="Dashboard" subtitle="Tổng quan hoạt động kinh doanh" />
 
-      {/* Thống kê tổng quan */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Tổng đơn hàng"
-              value={orderStats.total || 0}
-              prefix={<OrderedListOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
+        {/* Row 1: Overview full width */}
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+          <Col span={24}>
+            <OverviewStats />
+          </Col>
+        </Row>
 
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Doanh thu"
-              value={orderStats.totalRevenue || 0}
-              prefix={<DollarOutlined />}
-              suffix="₫"
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Card>
-        </Col>
+        {/* Row 2: Area chart (16) + Pie (8) */}
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+          <Col xs={24} lg={16}>
+            <RevenueAreaChart />
+          </Col>
+          <Col xs={24} lg={8}>
+            <TopProductsPie />
+          </Col>
+        </Row>
 
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Tổng người dùng"
-              value={userStats.total || 0}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#722ed1' }}
-            />
-          </Card>
-        </Col>
+        {/* Row 3: Order status (8) + Recent orders (16) */}
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={8}>
+            <Card className="stat-card" title="Trạng thái đơn hàng" style={{ height: 400 }}>
+              {(() => {
+                const pending = Number(orderStats.pending || 0);
+                const processing = Number(orderStats.processing || 0);
+                const completed = Number(orderStats.completed || 0);
+                const cancelled = Number(orderStats.cancelled || 0);
+                const total = Number(orderStats.total || (pending + processing + completed + cancelled) || 0);
 
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Khách hàng"
-              value={userStats.customer || 0}
-              prefix={<TeamOutlined />}
-              valueStyle={{ color: '#fa8c16' }}
-            />
-          </Card>
-        </Col>
-      </Row>
+                const pct = (n) => (total ? Math.round((n / total) * 100) : 0);
 
-      {/* Biểu đồ và bảng */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={12}>
-          <Card title="Trạng thái đơn hàng" style={{ height: 400 }}>
-            <Row gutter={[16, 16]}>
-              <Col span={12}>
-                <div style={{ textAlign: 'center' }}>
-                  <div
-                    style={{
-                      fontSize: 24,
-                      fontWeight: 'bold',
-                      color: '#fa8c16',
-                    }}
-                  >
-                    {orderStats.pending || 0}
+                const legendItem = (colorVar, label, count) => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 10, background: `var(${colorVar})` }} />
+                    <span style={{ color: 'var(--color-text-muted)' }}>{label}</span>
+                    <span style={{ marginLeft: 'auto', fontWeight: 600, color: 'var(--color-text-dark)' }}>{count}</span>
                   </div>
-                  <div>Chờ xử lý</div>
-                </div>
-              </Col>
-              <Col span={12}>
-                <div style={{ textAlign: 'center' }}>
-                  <div
-                    style={{
-                      fontSize: 24,
-                      fontWeight: 'bold',
-                      color: '#1890ff',
-                    }}
-                  >
-                    {orderStats.processing || 0}
-                  </div>
-                  <div>Đang xử lý</div>
-                </div>
-              </Col>
-              <Col span={12}>
-                <div style={{ textAlign: 'center', marginTop: 16 }}>
-                  <div
-                    style={{
-                      fontSize: 24,
-                      fontWeight: 'bold',
-                      color: '#52c41a',
-                    }}
-                  >
-                    {orderStats.completed || 0}
-                  </div>
-                  <div>Hoàn thành</div>
-                </div>
-              </Col>
-              <Col span={12}>
-                <div style={{ textAlign: 'center', marginTop: 16 }}>
-                  <div
-                    style={{
-                      fontSize: 24,
-                      fontWeight: 'bold',
-                      color: '#ff4d4f',
-                    }}
-                  >
-                    {orderStats.cancelled || 0}
-                  </div>
-                  <div>Đã hủy</div>
-                </div>
-              </Col>
-            </Row>
+                );
 
-            <div style={{ marginTop: 24 }}>
-              <div style={{ marginBottom: 8 }}>Tỷ lệ hoàn thành</div>
-              <Progress
-                percent={
-                  orderStats.total
-                    ? Math.round(
-                        (orderStats.completed / orderStats.total) * 100
-                      )
-                    : 0
-                }
-                status="active"
+                return (
+                  <div>
+                    {/* Stacked progress bar */}
+                    <div
+                      style={{
+                        marginTop: 8,
+                        display: 'flex',
+                        height: 14,
+                        borderRadius: 999,
+                        overflow: 'hidden',
+                        background: 'rgba(0,0,0,0.06)',
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
+                      }}
+                      title={`Tổng: ${total}`}
+                    >
+                      {pending > 0 && (
+                        <div
+                          style={{ width: `${pct(pending)}%`, background: 'var(--color-warning)', transition: 'width 300ms ease' }}
+                          title={`Chờ xử lý: ${pending} (${pct(pending)}%)`}
+                        />
+                      )}
+                      {processing > 0 && (
+                        <div
+                          style={{ width: `${pct(processing)}%`, background: 'var(--color-accent)', transition: 'width 300ms ease' }}
+                          title={`Đang xử lý: ${processing} (${pct(processing)}%)`}
+                        />
+                      )}
+                      {completed > 0 && (
+                        <div
+                          style={{ width: `${pct(completed)}%`, background: 'var(--color-success-strong)', transition: 'width 300ms ease' }}
+                          title={`Hoàn thành: ${completed} (${pct(completed)}%)`}
+                        />
+                      )}
+                      {cancelled > 0 && (
+                        <div
+                          style={{ width: `${pct(cancelled)}%`, background: 'var(--color-danger)', transition: 'width 300ms ease' }}
+                          title={`Đã hủy: ${cancelled} (${pct(cancelled)}%)`}
+                        />
+                      )}
+                    </div>
+
+                    {/* Percent labels below the bar */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 16 }}>
+                      <div>
+                        <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Chờ xử lý</div>
+                        <div style={{ fontWeight: 700, color: 'var(--color-text-dark)' }}>{pct(pending)}%</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Đang xử lý</div>
+                        <div style={{ fontWeight: 700, color: 'var(--color-text-dark)' }}>{pct(processing)}%</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Hoàn thành</div>
+                        <div style={{ fontWeight: 700, color: 'var(--color-text-dark)' }}>{pct(completed)}%</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Đã hủy</div>
+                        <div style={{ fontWeight: 700, color: 'var(--color-text-dark)' }}>{pct(cancelled)}%</div>
+                      </div>
+                    </div>
+
+                    {/* Count legend */}
+                    <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+                      {legendItem('--color-warning', 'Chờ xử lý', pending)}
+                      {legendItem('--color-accent', 'Đang xử lý', processing)}
+                      {legendItem('--color-success-strong', 'Hoàn thành', completed)}
+                      {legendItem('--color-danger', 'Đã hủy', cancelled)}
+                    </div>
+                  </div>
+                );
+              })()}
+            </Card>
+          </Col>
+          <Col xs={24} lg={16}>
+            <Card className="table-card" title="Đơn hàng gần đây" style={{ height: 400 }}>
+              <Table
+                dataSource={recentOrders}
+                columns={recentOrderColumns}
+                pagination={false}
+                size="small"
+                scroll={{ y: 280 }}
               />
-            </div>
-          </Card>
-        </Col>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+    );
+  };
 
-        <Col xs={24} lg={12}>
-          <Card title="Đơn hàng gần đây" style={{ height: 400 }}>
-            <Table
-              dataSource={recentOrders}
-              columns={recentOrderColumns}
-              pagination={false}
-              size="small"
-              scroll={{ y: 280 }}
-            />
-          </Card>
-        </Col>
-      </Row>
-    </div>
-  );
-};
-
-export default DashboardPage;
+  export default DashboardPage;

@@ -129,6 +129,19 @@ const MainLayout = () => {
     },
   ];
 
+  // add tooltip title for collapsed mode
+  const withTitles = (items) =>
+    items.map((it) =>
+      it.children
+        ? {
+            ...it,
+            title: typeof it.label === 'string' ? it.label : undefined,
+            children: withTitles(it.children),
+          }
+        : { ...it, title: typeof it.label === 'string' ? it.label : undefined }
+    );
+  const menuData = useMemo(() => withTitles(menuItems), []);
+
   // Dropdown menu cho user
   const userMenuItems = [
     {
@@ -202,6 +215,17 @@ const MainLayout = () => {
     return breadcrumbItems;
   };
 
+  // Auto collapse when viewport < 980-992px
+  useEffect(() => {
+    const onResize = () => {
+      const w = window.innerWidth;
+      if (w < 980) setCollapsed(true);
+    };
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
@@ -209,7 +233,9 @@ const MainLayout = () => {
         trigger={null}
         collapsible
         collapsed={collapsed}
+        collapsedWidth={72}
         width={250}
+        className="app-sider"
         style={{
           overflow: "auto",
           height: "100vh",
@@ -217,6 +243,10 @@ const MainLayout = () => {
           left: 0,
           top: 0,
           bottom: 0,
+        }}
+        breakpoint="lg"
+        onBreakpoint={(broken) => {
+          setCollapsed(broken);
         }}
       >
         <div
@@ -240,8 +270,8 @@ const MainLayout = () => {
             }}
           >
             <img
-              src="../../assets/thetrois-logo.jpg" // đường dẫn tới logo của bạn
-              alt="Logo"
+              src={collapsed ? "../../assets/Logo.png" : "../../assets/Logo-expand.png"}
+              alt="TheTrois Logo"
               style={{
                 width: collapsed ? 40 : 50,
                 height: "auto",
@@ -252,7 +282,7 @@ const MainLayout = () => {
         </div>
 
         <Menu
-          theme="dark"
+          theme="light"
           mode="inline"
           selectedKeys={[location.pathname]}
           defaultOpenKeys={[
@@ -260,15 +290,17 @@ const MainLayout = () => {
               ? `/${location.pathname.split("/")[1]}`
               : "/",
           ]}
-          items={menuItems}
+          inlineCollapsed={collapsed}
+          items={menuData}
           onClick={handleMenuClick}
         />
       </Sider>
 
       {/* Main Layout */}
-      <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
+      <Layout style={{ marginLeft: collapsed ? 72 : 250 }}>
         {/* Header */}
         <Header
+          className="app-header"
           style={{
             padding: 0,
             background: "#fff",
@@ -288,9 +320,11 @@ const MainLayout = () => {
                 width: 64,
                 height: 64,
               }}
+              className="sider-toggle"
             />
 
             <Breadcrumb
+              className="app-breadcrumb"
               items={generateBreadcrumb()}
               style={{ margin: "0 16px" }}
             />
@@ -337,6 +371,7 @@ const MainLayout = () => {
 
         {/* Content */}
         <Content
+          className="app-content"
           style={{
             margin: "24px 16px",
             padding: 24,
@@ -345,7 +380,9 @@ const MainLayout = () => {
             borderRadius: 6,
           }}
         >
-          <Outlet />
+          <div className="content-inner">
+            <Outlet />
+          </div>
         </Content>
       </Layout>
     </Layout>

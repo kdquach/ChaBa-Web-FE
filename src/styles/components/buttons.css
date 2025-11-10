@@ -1,0 +1,47 @@
+/* Ant Design button overrides to align with theme primary color */
+.ant-btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #fff !important;
+  text-shadow: none !important;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02) !important;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: color-mix(in srgb, var(--color-primary) 92%, #000) !important;
+  border-color: color-mix(in srgb, var(--color-primary) 92%, #000) !important;
+}
+
+.ant-btn-primary:active {
+  background-color: color-mix(in srgb, var(--color-primary) 86%, #000) !important;
+  border-color: color-mix(in srgb, var(--color-primary) 86%, #000) !important;
+}
+
+/* Disabled state keeps a tint of primary */
+.ant-btn-primary:disabled,
+.ant-btn-primary[disabled] {
+  background-color: color-mix(in srgb, var(--color-primary) 40%, #fff) !important;
+  border-color: color-mix(in srgb, var(--color-primary) 40%, #fff) !important;
+  color: #fff !important;
+}
+
+/* Link-like primary buttons using Ant's link style but with primary color */
+.ant-btn-link,
+.ant-btn-text {
+  color: var(--color-primary) !important;
+}
+
+/* Default buttons when marked as danger should use danger token */
+.ant-btn-dangerous.ant-btn-primary {
+  background-color: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
+}
+
+/* Ghost variant on light surface */
+.ant-btn-ghost.ant-btn-primary,
+.ant-btn-ghost.ant-btn-primary:hover {
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  background: transparent !important;
+}

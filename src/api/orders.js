@@ -95,6 +95,94 @@ const MOCK_ORDERS = [
 
 let mockOrders = [...MOCK_ORDERS];
 
+// Tạo dữ liệu giả phong phú cho biểu đồ (doanh thu theo thời gian, top sản phẩm)
+// Ghi chú: chỉ chạy 1 lần để tránh nhân đôi khi HMR
+function seedMockOrders() {
+  if (globalThis.__CHA_BA_MOCK_ORDERS_SEEDED__) return; // đã seed trong phiên này
+  if (mockOrders.length > 100) {
+    globalThis.__CHA_BA_MOCK_ORDERS_SEEDED__ = true;
+    return; // đã có dữ liệu đủ lớn
+  }
+
+  const productCatalog = [
+    { id: 1, name: "Trà Sữa Truyền Thống", price: 25000 },
+    { id: 2, name: "Trà Sữa Matcha", price: 35000 },
+    { id: 3, name: "Trà Sữa Chocolate", price: 30000 },
+    { id: 4, name: "Trà Oolong Sữa", price: 28000 },
+    { id: 5, name: "Hồng Trà Sữa", price: 27000 },
+    { id: 6, name: "Trà Sữa Socola Bạc Hà", price: 32000 },
+    { id: 7, name: "Trà Sữa Khoai Môn", price: 30000 },
+    { id: 8, name: "Sữa Tươi Trân Châu Đường Đen", price: 35000 },
+  ];
+
+  // Helper tạo số giả lập theo ngày (deterministic-ish)
+  const pseudoRand = (seed) => {
+    let x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  };
+
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - 3); // 3 tháng gần đây
+  startDate.setHours(0, 0, 0, 0);
+
+  let nextId = Math.max(...mockOrders.map((o) => Number(o.id) || 0), 0) + 1;
+
+  const days = 90; // 3 tháng ~ 90 ngày
+  for (let i = 0; i < days; i++) {
+    const d = new Date(startDate.getTime());
+    d.setDate(d.getDate() + i);
+    const baseSeed = Number(`${d.getFullYear()}${d.getMonth() + 1}${d.getDate()}`);
+    // 0-6 đơn/ngày
+    const ordersInDay = Math.floor(pseudoRand(baseSeed) * 7);
+
+    for (let k = 0; k < ordersInDay; k++) {
+      const itemsCount = 1 + Math.floor(pseudoRand(baseSeed + k) * 3); // 1-3 món/đơn
+      const items = [];
+      let subtotal = 0;
+      for (let t = 0; t < itemsCount; t++) {
+        const pick = Math.floor(pseudoRand(baseSeed + k * 10 + t) * productCatalog.length);
+        const qty = 1 + Math.floor(pseudoRand(baseSeed + k * 100 + t) * 3); // 1-3 ly
+        const prod = productCatalog[pick];
+        items.push({
+          id: nextId * 10 + t,
+          productId: prod.id,
+          productName: prod.name,
+          quantity: qty,
+          price: prod.price,
+        });
+        subtotal += qty * prod.price;
+      }
+      const discount = subtotal > 100000 ? 5000 : 0;
+      const total = subtotal - discount;
+      const statusPool = ["completed", "completed", "processing", "pending"]; // ưu tiên completed
+      const status = statusPool[Math.floor(pseudoRand(baseSeed + k * 7) * statusPool.length)];
+      const paid = status === "completed" ? "paid" : "pending";
+
+      mockOrders.push({
+        id: nextId,
+        orderNumber: `ORD${String(nextId).padStart(3, "0")}`,
+        customerId: 1000 + nextId,
+        customerName: `Khách ${nextId}`,
+        customerPhone: `09${String(10000000 + nextId).slice(-8)}`,
+        items,
+        subtotal,
+        discount,
+        total,
+        status,
+        paymentStatus: paid,
+        paymentMethod: paid === "paid" ? "card" : "cash",
+        notes: "",
+        createdAt: new Date(d.getTime() + k * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(d.getTime() + (k + 1) * 60 * 60 * 1000).toISOString(),
+      });
+      nextId++;
+    }
+  }
+  globalThis.__CHA_BA_MOCK_ORDERS_SEEDED__ = true;
+}
+
+try { seedMockOrders(); } catch (e) { /* noop */ }
+
 // Lấy danh sách đơn hàng
 export const getOrders = async (params = {}) => {
   await new Promise((resolve) => setTimeout(resolve, 600));
@@ -231,4 +319,79 @@ export const getOrderStats = async () => {
   };
 
   return stats;
+};
+
+// Phân tích doanh thu theo khoảng thời gian và nhóm theo day|month|year
+export const getRevenueAnalytics = async ({ from, to, groupBy = "day" } = {}) => {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  const start = from ? new Date(from) : new Date("2024-01-01T00:00:00Z");
+  const end = to ? new Date(to) : new Date();
+
+  const fmtKey = (d) => {
+    const date = new Date(d);
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    if (groupBy === "year") return `${y}`;
+    if (groupBy === "month") return `${y}-${m}`;
+    return `${y}-${m}-${day}`; // day
+  };
+
+  const filtered = mockOrders.filter((o) => {
+    const created = new Date(o.createdAt);
+    return created >= start && created <= end && o.status === "completed";
+  });
+
+  const map = new Map();
+  for (const o of filtered) {
+    const key = fmtKey(o.createdAt);
+    const prev = map.get(key) || { revenue: 0, orders: 0 };
+    map.set(key, { revenue: prev.revenue + (o.total || 0), orders: prev.orders + 1 });
+  }
+
+  // sort keys
+  const keys = Array.from(map.keys()).sort((a, b) => (a > b ? 1 : -1));
+  const buckets = keys.map((k) => ({ key: k, revenue: map.get(k).revenue, orders: map.get(k).orders }));
+
+  const totalRevenue = buckets.reduce((s, b) => s + b.revenue, 0);
+  const totalOrders = buckets.reduce((s, b) => s + b.orders, 0);
+
+  return {
+    from: start.toISOString(),
+    to: end.toISOString(),
+    groupBy,
+    totalRevenue,
+    totalOrders,
+    avgOrderValue: totalOrders ? Math.round((totalRevenue / totalOrders) * 100) / 100 : 0,
+    buckets,
+  };
+};
+
+// Top sản phẩm bán chạy theo số lượng trong khoảng thời gian
+export const getTopProducts = async ({ from, to, limit = 10 } = {}) => {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  const start = from ? new Date(from) : new Date("2024-01-01T00:00:00Z");
+  const end = to ? new Date(to) : new Date();
+
+  const totals = new Map();
+  for (const o of mockOrders) {
+    const created = new Date(o.createdAt);
+    if (!(created >= start && created <= end && o.status === "completed")) continue;
+    for (const it of o.items || []) {
+      const key = it.productName || `#${it.productId}`;
+      const prev = totals.get(key) || { quantity: 0, revenue: 0 };
+      const qty = Number(it.quantity || 0);
+      const price = Number(it.price || 0);
+      totals.set(key, { quantity: prev.quantity + qty, revenue: prev.revenue + qty * price });
+    }
+  }
+
+  const rows = Array.from(totals.entries()).map(([name, agg]) => ({ name, ...agg }));
+  rows.sort((a, b) => b.quantity - a.quantity);
+  const top = rows.slice(0, limit);
+  const totalQty = top.reduce((s, r) => s + r.quantity, 0) || 1;
+  // Pie values as percentage, include revenue for tooltip/details
+  return top.map((r) => ({ type: r.name, value: r.quantity, percent: r.quantity / totalQty, revenue: r.revenue }));
 };
