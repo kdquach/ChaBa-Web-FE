@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Layout,
@@ -79,6 +79,21 @@ const MainLayout = () => {
           key: "/orders/new",
           label: "Tạo đơn hàng",
         },
+      ],
+    },
+    {
+      key: "/order-staff",
+      icon: <OrderedListOutlined />,
+      label: "Quản lý đơn hàng staff",
+      children: [
+        {
+          key: "/order-staff",
+          label: "Danh sách đơn hàng staff",
+        },
+        // {
+        //   key: '/orders/new',
+        //   label: 'Tạo đơn hàng',
+        // },
       ],
     },
     {
@@ -172,9 +187,7 @@ const MainLayout = () => {
 
   // Xử lý click user menu
   const handleUserMenuClick = ({ key }) => {
-    if (key === "profile") {
-      navigate(`/Profile`);
-    } else if (key === "logout") {
+    if (key === "logout") {
       logout();
       navigate("/login");
     }
@@ -227,7 +240,7 @@ const MainLayout = () => {
   }, []);
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout className="app-shell" style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
       <Sider
         trigger={null}
@@ -249,19 +262,11 @@ const MainLayout = () => {
           setCollapsed(broken);
         }}
       >
-        <div
-          style={{
-            height: 64,
-            margin: 16,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <div className="logo-box">
           <Title
             level={4}
             style={{
-              color: "white",
+              color: "var(--color-text-dark)",
               margin: 0,
               fontSize: collapsed ? 16 : 18,
               display: "flex",
@@ -277,11 +282,10 @@ const MainLayout = () => {
               }
               alt="TheTrois Logo"
               style={{
-                width: collapsed ? 40 : 50,
+                width: collapsed ? 40 : 120,
                 height: "auto",
               }}
             />
-            {collapsed ? "" : "The Trois"}
           </Title>
         </div>
 
@@ -307,11 +311,9 @@ const MainLayout = () => {
           className="app-header"
           style={{
             padding: 0,
-            background: "#fff",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            boxShadow: "0 1px 4px rgba(0,21,41,.08)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -335,11 +337,7 @@ const MainLayout = () => {
           </div>
 
           <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              paddingRight: 24,
-            }}
+            style={{ display: "flex", alignItems: "center", paddingRight: 24 }}
           >
             <Space size={16}>
               {/* Notification Bell */}
@@ -362,8 +360,7 @@ const MainLayout = () => {
               >
                 <Space style={{ cursor: "pointer" }}>
                   <Avatar
-                    src={user?.avatar}
-                    icon={user?.avatar ? null : <UserOutlined />}
+                    icon={<UserOutlined />}
                     style={{ backgroundColor: "#52c41a" }}
                   />
                   <span>{user?.name}</span>
@@ -378,10 +375,7 @@ const MainLayout = () => {
           className="app-content"
           style={{
             margin: "24px 16px",
-            padding: 24,
             minHeight: 280,
-            background: "#fff",
-            borderRadius: 6,
           }}
         >
           <div className="content-inner">
