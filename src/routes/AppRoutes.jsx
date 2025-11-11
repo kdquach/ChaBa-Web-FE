@@ -1,11 +1,11 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { Spin } from 'antd';
-import { useAuth } from '../hooks/useAuth';
-import ProtectedRoute from './ProtectedRoute';
-import PublicRoute from './PublicRoute';
-import MainLayout from '../layouts/MainLayout';
-import AuthLayout from '../layouts/AuthLayout';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { Spin } from "antd";
+import { useAuth } from "../hooks/useAuth";
+import ProtectedRoute from "./ProtectedRoute";
+import PublicRoute from "./PublicRoute";
+import MainLayout from "../layouts/MainLayout";
+import AuthLayout from "../layouts/AuthLayout";
 
 // Import pages
 import LoginPage from '../pages/Auth/LoginPage';
@@ -44,10 +44,10 @@ const AppRoutes = () => {
     return (
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
         }}
       >
         <Spin size="large" tip="Đang tải..." />
@@ -155,7 +155,8 @@ const AppRoutes = () => {
         {/* Quản lý topping */}
         <Route path="toppings" element={<ToppingListPage />} />
         <Route path="toppings/new" element={<ToppingFormPage />} />
-        <Route path="toppings/:id/edit" element={<ToppingFormPage />} />
+        <Route path="toppings/:id/:mode" element={<ToppingFormPage />} />
+
         {/* Quản lý danh mục */}
         <Route path="categories" element={<CategoryListPage />} />
         <Route path="categories/new" element={<CategoryFormPage />} />
