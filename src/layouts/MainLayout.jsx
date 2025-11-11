@@ -43,16 +43,16 @@ const MainLayout = () => {
       label: 'Dashboard',
     },
     {
-      key: "/categories",
+      key: '/categories',
       icon: <InboxOutlined />,
-      label: "Quản lý danh mục",
+      label: 'Quản lý danh mục',
       children: [
-        { key: "/categories", label: "Danh sách danh mục" },
-        { key: "/categories/new", label: "Thêm danh mục" },
+        { key: '/categories', label: 'Danh sách danh mục' },
+        { key: '/categories/new', label: 'Thêm danh mục' },
       ],
     },
     {
-      key: "/products",
+      key: '/products',
       icon: <ShoppingOutlined />,
       label: 'Quản lý sản phẩm',
       children: [
@@ -79,6 +79,21 @@ const MainLayout = () => {
           key: '/orders/new',
           label: 'Tạo đơn hàng',
         },
+      ],
+    },
+    {
+      key: '/order-staff',
+      icon: <OrderedListOutlined />,
+      label: 'Quản lý đơn hàng staff',
+      children: [
+        {
+          key: '/order-staff',
+          label: 'Danh sách đơn hàng staff',
+        },
+        // {
+        //   key: '/orders/new',
+        //   label: 'Tạo đơn hàng',
+        // },
       ],
     },
     {
@@ -190,14 +205,14 @@ const MainLayout = () => {
     ];
 
     const pathMap = {
-      products: "Sản phẩm",
-      orders: "Đơn hàng",
-      users: "Người dùng",
-      ingredients: "Nguyên liệu",
-      toppings: "Topping",
-      categories: "Danh mục",
-      new: "Thêm mới",
-      edit: "Chỉnh sửa",
+      products: 'Sản phẩm',
+      orders: 'Đơn hàng',
+      users: 'Người dùng',
+      ingredients: 'Nguyên liệu',
+      toppings: 'Topping',
+      categories: 'Danh mục',
+      new: 'Thêm mới',
+      edit: 'Chỉnh sửa',
     };
 
     pathSnippets.forEach((snippet, index) => {
@@ -260,7 +275,11 @@ const MainLayout = () => {
             }}
           >
             <img
-              src={collapsed ? "../../assets/Logo.png" : "../../assets/Logo-expand.png"}
+              src={
+                collapsed
+                  ? '../../assets/Logo.png'
+                  : '../../assets/Logo-expand.png'
+              }
               alt="TheTrois Logo"
               style={{
                 width: collapsed ? 40 : 120,
