@@ -26,8 +26,8 @@ export const login = async (credentials) => {
  * @returns {Promise<Object>} - Thông tin người dùng
  */
 export const verifyToken = async () => {
-  const { data } = await apiClient.get("/auth/verify");
-  return data;
+  const response = await apiClient.get("/auth/verify");
+  return response;
 };
 
 /**
@@ -126,6 +126,7 @@ export const register = async (userData) => {
     throw error;
   }
 };
+
 /**
  * Xác thực OTP khi đăng ký
  * @param {Object} verifyData - Dữ liệu xác thực gồm name,email,phone,password,otp (theo API backend)

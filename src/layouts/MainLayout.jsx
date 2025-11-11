@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Layout,
@@ -135,10 +135,10 @@ const MainLayout = () => {
       it.children
         ? {
             ...it,
-            title: typeof it.label === 'string' ? it.label : undefined,
+            title: typeof it.label === "string" ? it.label : undefined,
             children: withTitles(it.children),
           }
-        : { ...it, title: typeof it.label === 'string' ? it.label : undefined }
+        : { ...it, title: typeof it.label === "string" ? it.label : undefined }
     );
   const menuData = useMemo(() => withTitles(menuItems), []);
 
@@ -222,8 +222,8 @@ const MainLayout = () => {
       if (w < 980) setCollapsed(true);
     };
     onResize();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   return (
@@ -270,7 +270,11 @@ const MainLayout = () => {
             }}
           >
             <img
-              src={collapsed ? "../../assets/Logo.png" : "../../assets/Logo-expand.png"}
+              src={
+                collapsed
+                  ? "../../assets/Logo.png"
+                  : "../../assets/Logo-expand.png"
+              }
               alt="TheTrois Logo"
               style={{
                 width: collapsed ? 40 : 50,
