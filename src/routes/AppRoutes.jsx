@@ -33,6 +33,8 @@ import IngredientCategoryListPage from '../pages/IngredientCategory/IngredientCa
 import IngredientCategoryFormPage from '../pages/IngredientCategory/IngredientCategoryFormPage';
 import OrderStaffListPage from '../pages/OrderStaff/OrderStaffListPage';
 import OrderLogPage from '../pages/OrderStaff/OrderLogPage';
+import StaffFeedbackList from '../pages/Feedbacks/StaffFeedbackList';
+import StaffFeedbackDetail from '../pages/Feedbacks/StaffFeedbackDetail';
 
 const AppRoutes = () => {
   const { loading } = useAuth();
@@ -173,6 +175,10 @@ const AppRoutes = () => {
           element={<IngredientCategoryFormPage />}
         />
         <Route path="toppings/:id/:mode" element={<ToppingFormPage />} />
+
+        {/* Quản lý đánh giá */}
+        <Route path="feedbacks" element={<StaffFeedbackList />} />
+        <Route path="feedbacks/:id" element={<StaffFeedbackDetail />} />
 
         {/* Quản lý profile */}
         <Route path="Profile" element={<ProfilePage />} />
