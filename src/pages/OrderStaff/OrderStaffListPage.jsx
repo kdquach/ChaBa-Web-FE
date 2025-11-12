@@ -207,12 +207,16 @@ const OrderStaffListPage = () => {
           completed: { color: 'green', text: 'Hoàn thành' },
           cancelled: { color: 'red', text: 'Đã hủy' },
         };
+
+        const isDisabled = status === 'completed' || status === 'cancelled';
+
         return (
           <Select
             value={status}
             size="small"
             style={{ width: '100%' }}
             onChange={(val) => handleStatusUpdate(record, val)}
+            disabled={isDisabled}
           >
             {Object.entries(statusMap).map(([key, val]) => (
               <Option key={key} value={key}>
