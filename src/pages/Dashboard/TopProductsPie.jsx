@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, DatePicker } from "antd";
 import dayjs from "dayjs";
 import ReactApexChart from "react-apexcharts";
-import { getTopProducts } from "../../api/orders";
+import { fetchTopProducts } from "../../api/dashboard";
 
 const { RangePicker } = DatePicker;
 
@@ -15,7 +15,7 @@ const TopProductsPie = () => {
 		try {
 			setLoading(true);
 			const [from, to] = range || [];
-			const rows = await getTopProducts({
+			const rows = await fetchTopProducts({
 				from: from?.startOf("day").toISOString(),
 				to: to?.endOf("day").toISOString(),
 				limit: 5,
