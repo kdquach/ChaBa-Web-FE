@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Card, DatePicker, Select, Space } from "antd";
 import dayjs from "dayjs";
 import ReactApexChart from "react-apexcharts";
-import { getRevenueAnalytics } from "../../api/orders";
+import { fetchRevenueSeries } from "../../api/dashboard";
 
 const { RangePicker } = DatePicker;
 
@@ -31,7 +31,7 @@ const RevenueAreaChart = () => {
     if (!params.from || !params.to) return;
     try {
       setLoading(true);
-      const data = await getRevenueAnalytics(params);
+  const data = await fetchRevenueSeries(params);
       setSeries((data?.buckets || []).map((b) => ({ time: b.key, revenue: b.revenue })));
     } finally {
       setLoading(false);

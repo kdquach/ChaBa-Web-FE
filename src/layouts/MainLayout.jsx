@@ -23,6 +23,7 @@ import {
   LogoutOutlined,
   SettingOutlined,
   BellOutlined,
+  CommentOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "../hooks/useAuth";
 
@@ -95,6 +96,12 @@ const MainLayout = () => {
         //   label: 'Tạo đơn hàng',
         // },
       ],
+    },
+    {
+      key: "/feedbacks",
+      icon: <CommentOutlined />,
+      label: "Quản lý đánh giá",
+      children: [{ key: "/feedbacks", label: "Danh sách đánh giá" }],
     },
     {
       key: "/users",
@@ -207,6 +214,7 @@ const MainLayout = () => {
     const pathMap = {
       products: "Sản phẩm",
       orders: "Đơn hàng",
+      feedbacks: "Đánh giá",
       users: "Người dùng",
       ingredients: "Nguyên liệu",
       toppings: "Topping",

@@ -13,41 +13,17 @@
   import OverviewStats from './OverviewStats';
   import RevenueAreaChart from './RevenueAreaChart';
   import TopProductsPie from './TopProductsPie';
-  import { getOrderStats } from '../../api/orders';
-  import { getUserStats } from '../../api/users';
+  import { fetchDashboardOverview, fetchRecentOrders } from '../../api/dashboard';
   // import { getStockAlerts } from "../../api/ingredients";
 
   const DashboardPage = () => {
     const [loading, setLoading] = useState(true);
-    const [orderStats, setOrderStats] = useState({});
-    const [userStats, setUserStats] = useState({});
-    const [stockAlerts, setStockAlerts] = useState([]);
+  const [orderStats, setOrderStats] = useState({});
+  const [userStats, setUserStats] = useState({});
+  const [recentOrders, setRecentOrders] = useState([]);
     const vnd = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 
-    // Mock dữ liệu gần đây
-    const recentOrders = [
-      {
-        key: '1',
-        orderNumber: 'ORD001',
-        customer: 'Nguyễn Văn A',
-        total: 85000,
-        status: 'completed',
-      },
-      {
-        key: '2',
-        orderNumber: 'ORD002',
-        customer: 'Trần Thị B',
-        total: 30000,
-        status: 'processing',
-      },
-      {
-        key: '3',
-        orderNumber: 'ORD003',
-        customer: 'Lê Văn C',
-        total: 93000,
-        status: 'pending',
-      },
-    ];
+    // Recent orders now fetched from backend
 
     const recentOrderColumns = [
       {
@@ -87,15 +63,29 @@
       const fetchData = async () => {
         try {
           setLoading(true);
-          const [orders, users, alerts] = await Promise.all([
-            getOrderStats(),
-            getUserStats(),
-            // getStockAlerts(),
+          const [overview, recent] = await Promise.all([
+            fetchDashboardOverview(),
+            fetchRecentOrders({ limit: 5 }),
           ]);
-
-          setOrderStats(orders);
+          const orders = overview?.orders || {};
+          const revenue = overview?.revenue || {};
+          const users = overview?.users || {};
+          setOrderStats({
+            total: orders.total,
+            pending: orders.pending,
+            processing: orders.processing,
+            completed: orders.completed,
+            cancelled: orders.cancelled,
+            totalRevenue: revenue.totalRevenue,
+          });
           setUserStats(users);
-          setStockAlerts(alerts);
+          setRecentOrders((recent || []).map((o) => ({
+            key: o.id,
+            orderNumber: o.orderNumber,
+            customer: o.customer,
+            total: o.total,
+            status: o.status,
+          })));
         } catch (error) {
           console.error('Error fetching dashboard data:', error);
         } finally {
