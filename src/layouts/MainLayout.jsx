@@ -160,7 +160,7 @@ const MainLayout = () => {
   // Dropdown menu cho user
   const userMenuItems = [
     {
-      key: "profile",
+      key: "/profile",
       icon: <UserOutlined />,
       label: "Thông tin cá nhân",
     },
