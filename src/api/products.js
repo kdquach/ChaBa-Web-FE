@@ -143,8 +143,8 @@ export const updateProduct = async (productId, data) => {
  * @returns {Promise<{success: boolean}>} - Kết quả xóa sản phẩm
  */
 export const deleteProduct = async (productId) => {
-  const { data } = await apiClient.delete(`/products/${productId}`);
-  return data;
+  const response = await apiClient.delete(`/products/${productId}`);
+  return response;
 };
 
 /**

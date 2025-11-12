@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Layout,
   Menu,
@@ -10,7 +10,7 @@ import {
   Badge,
   Space,
   Typography,
-} from 'antd';
+} from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -24,8 +24,8 @@ import {
   SettingOutlined,
   BellOutlined,
   CommentOutlined,
-} from '@ant-design/icons';
-import { useAuth } from '../hooks/useAuth';
+} from "@ant-design/icons";
+import { useAuth } from "../hooks/useAuth";
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -39,57 +39,57 @@ const MainLayout = () => {
   // Menu items cho sidebar
   const menuItems = [
     {
-      key: '/',
+      key: "/",
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: "Dashboard",
     },
     {
-      key: '/categories',
+      key: "/categories",
       icon: <InboxOutlined />,
-      label: 'Quản lý danh mục',
+      label: "Quản lý danh mục",
       children: [
-        { key: '/categories', label: 'Danh sách danh mục' },
-        { key: '/categories/new', label: 'Thêm danh mục' },
+        { key: "/categories", label: "Danh sách danh mục" },
+        { key: "/categories/new", label: "Thêm danh mục" },
       ],
     },
     {
-      key: '/products',
+      key: "/products",
       icon: <ShoppingOutlined />,
-      label: 'Quản lý sản phẩm',
+      label: "Quản lý sản phẩm",
       children: [
         {
-          key: '/products',
-          label: 'Danh sách sản phẩm',
+          key: "/products",
+          label: "Danh sách sản phẩm",
         },
         {
-          key: '/products/new',
-          label: 'Thêm sản phẩm mới',
+          key: "/products/new",
+          label: "Thêm sản phẩm mới",
         },
       ],
     },
     {
-      key: '/orders',
+      key: "/orders",
       icon: <OrderedListOutlined />,
-      label: 'Quản lý đơn hàng',
+      label: "Quản lý đơn hàng",
       children: [
         {
-          key: '/orders',
-          label: 'Danh sách đơn hàng',
+          key: "/orders",
+          label: "Danh sách đơn hàng",
         },
         {
-          key: '/orders/new',
-          label: 'Tạo đơn hàng',
+          key: "/orders/new",
+          label: "Tạo đơn hàng",
         },
       ],
     },
     {
-      key: '/order-staff',
+      key: "/order-staff",
       icon: <OrderedListOutlined />,
-      label: 'Quản lý đơn hàng staff',
+      label: "Quản lý đơn hàng staff",
       children: [
         {
-          key: '/order-staff',
-          label: 'Danh sách đơn hàng staff',
+          key: "/order-staff",
+          label: "Danh sách đơn hàng staff",
         },
         // {
         //   key: '/orders/new',
@@ -98,56 +98,54 @@ const MainLayout = () => {
       ],
     },
     {
-      key: '/feedbacks',
+      key: "/feedbacks",
       icon: <CommentOutlined />,
-      label: 'Quản lý đánh giá',
-      children: [
-        { key: '/feedbacks', label: 'Danh sách đánh giá' },
-      ],
+      label: "Quản lý đánh giá",
+      children: [{ key: "/feedbacks", label: "Danh sách đánh giá" }],
     },
     {
-      key: '/users',
+      key: "/users",
       icon: <UserOutlined />,
-      label: 'Quản lý người dùng',
+      label: "Quản lý người dùng",
       children: [
         {
-          key: '/users',
-          label: 'Danh sách người dùng',
+          key: "/users",
+          label: "Danh sách người dùng",
         },
         {
-          key: '/users/new',
-          label: 'Thêm người dùng',
+          key: "/users/new",
+          label: "Thêm người dùng",
         },
       ],
     },
     {
-      key: '/ingredients',
+      key: "/ingredients",
       icon: <InboxOutlined />,
-      label: 'Quản lý nguyên liệu',
+      label: "Quản lý nguyên liệu",
       children: [
         {
-          key: '/ingredients',
-          label: 'Danh sách nguyên liệu',
+          key: "/ingredients",
+          label: "Danh sách nguyên liệu",
         },
         // {
         //   key: '/ingredients/new',
         //   label: 'Thêm nguyên liệu',
         // },
-        { key: '/ingredient-categories', label: 'Danh sách loại nguyên liệu' },
+        { key: "/ingredient-categories", label: "Danh sách loại nguyên liệu" },
       ],
     },
     {
-      key: '/toppings',
+      key: "/toppings",
       icon: <PlusOutlined />,
-      label: 'Quản lý topping',
+      label: "Quản lý topping",
       children: [
         {
-          key: '/toppings',
-          label: 'Danh sách topping',
+          key: "/toppings",
+          label: "Danh sách topping",
         },
         {
-          key: '/toppings/new',
-          label: 'Thêm topping',
+          key: "/toppings/new",
+          label: "Thêm topping",
         },
       ],
     },
@@ -159,32 +157,32 @@ const MainLayout = () => {
       it.children
         ? {
             ...it,
-            title: typeof it.label === 'string' ? it.label : undefined,
+            title: typeof it.label === "string" ? it.label : undefined,
             children: withTitles(it.children),
           }
-        : { ...it, title: typeof it.label === 'string' ? it.label : undefined }
+        : { ...it, title: typeof it.label === "string" ? it.label : undefined }
     );
   const menuData = useMemo(() => withTitles(menuItems), []);
 
   // Dropdown menu cho user
   const userMenuItems = [
     {
-      key: 'profile',
+      key: "/profile",
       icon: <UserOutlined />,
-      label: 'Thông tin cá nhân',
+      label: "Thông tin cá nhân",
     },
     {
-      key: 'settings',
+      key: "settings",
       icon: <SettingOutlined />,
-      label: 'Cài đặt',
+      label: "Cài đặt",
     },
     {
-      type: 'divider',
+      type: "divider",
     },
     {
-      key: 'logout',
+      key: "logout",
       icon: <LogoutOutlined />,
-      label: 'Đăng xuất',
+      label: "Đăng xuất",
       danger: true,
     },
   ];
@@ -196,37 +194,37 @@ const MainLayout = () => {
 
   // Xử lý click user menu
   const handleUserMenuClick = ({ key }) => {
-    if (key === 'logout') {
+    if (key === "logout") {
       logout();
-      navigate('/login');
+      navigate("/login");
     }
     // Xử lý các menu item khác
   };
 
   // Tạo breadcrumb từ current path
   const generateBreadcrumb = () => {
-    const pathSnippets = location.pathname.split('/').filter((i) => i);
+    const pathSnippets = location.pathname.split("/").filter((i) => i);
     const breadcrumbItems = [
       {
-        title: 'Trang chủ',
-        href: '/',
+        title: "Trang chủ",
+        href: "/",
       },
     ];
 
     const pathMap = {
-      products: 'Sản phẩm',
-      orders: 'Đơn hàng',
+      products: "Sản phẩm",
+      orders: "Đơn hàng",
       feedbacks: "Đánh giá",
-      users: 'Người dùng',
-      ingredients: 'Nguyên liệu',
-      toppings: 'Topping',
-      categories: 'Danh mục',
-      new: 'Thêm mới',
-      edit: 'Chỉnh sửa',
+      users: "Người dùng",
+      ingredients: "Nguyên liệu",
+      toppings: "Topping",
+      categories: "Danh mục",
+      new: "Thêm mới",
+      edit: "Chỉnh sửa",
     };
 
     pathSnippets.forEach((snippet, index) => {
-      const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+      const url = `/${pathSnippets.slice(0, index + 1).join("/")}`;
       const title = pathMap[snippet] || snippet;
 
       breadcrumbItems.push({
@@ -245,12 +243,12 @@ const MainLayout = () => {
       if (w < 980) setCollapsed(true);
     };
     onResize();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   return (
-    <Layout className="app-shell" style={{ minHeight: '100vh' }}>
+    <Layout className="app-shell" style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
       <Sider
         trigger={null}
@@ -260,9 +258,9 @@ const MainLayout = () => {
         width={250}
         className="app-sider"
         style={{
-          overflow: 'auto',
-          height: '100vh',
-          position: 'fixed',
+          overflow: "auto",
+          height: "100vh",
+          position: "fixed",
           left: 0,
           top: 0,
           bottom: 0,
@@ -276,24 +274,24 @@ const MainLayout = () => {
           <Title
             level={4}
             style={{
-              color: 'var(--color-text-dark)',
+              color: "var(--color-text-dark)",
               margin: 0,
               fontSize: collapsed ? 16 : 18,
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               gap: 8, // khoảng cách giữa logo và chữ
             }}
           >
             <img
               src={
                 collapsed
-                  ? '../../assets/Logo.png'
-                  : '../../assets/Logo-expand.png'
+                  ? "../../assets/Logo.png"
+                  : "../../assets/Logo-expand.png"
               }
               alt="TheTrois Logo"
               style={{
                 width: collapsed ? 40 : 120,
-                height: 'auto',
+                height: "auto",
               }}
             />
           </Title>
@@ -304,9 +302,9 @@ const MainLayout = () => {
           mode="inline"
           selectedKeys={[location.pathname]}
           defaultOpenKeys={[
-            location.pathname.split('/')[1]
-              ? `/${location.pathname.split('/')[1]}`
-              : '/',
+            location.pathname.split("/")[1]
+              ? `/${location.pathname.split("/")[1]}`
+              : "/",
           ]}
           inlineCollapsed={collapsed}
           items={menuData}
@@ -321,18 +319,18 @@ const MainLayout = () => {
           className="app-header"
           style={{
             padding: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
               style={{
-                fontSize: '16px',
+                fontSize: "16px",
                 width: 64,
                 height: 64,
               }}
@@ -342,12 +340,12 @@ const MainLayout = () => {
             <Breadcrumb
               className="app-breadcrumb"
               items={generateBreadcrumb()}
-              style={{ margin: '0 16px' }}
+              style={{ margin: "0 16px" }}
             />
           </div>
 
           <div
-            style={{ display: 'flex', alignItems: 'center', paddingRight: 24 }}
+            style={{ display: "flex", alignItems: "center", paddingRight: 24 }}
           >
             <Space size={16}>
               {/* Notification Bell */}
@@ -366,12 +364,12 @@ const MainLayout = () => {
                   onClick: handleUserMenuClick,
                 }}
                 placement="bottomRight"
-                trigger={['click']}
+                trigger={["click"]}
               >
-                <Space style={{ cursor: 'pointer' }}>
+                <Space style={{ cursor: "pointer" }}>
                   <Avatar
                     icon={<UserOutlined />}
-                    style={{ backgroundColor: '#52c41a' }}
+                    style={{ backgroundColor: "#52c41a" }}
                   />
                   <span>{user?.name}</span>
                 </Space>
@@ -384,7 +382,7 @@ const MainLayout = () => {
         <Content
           className="app-content"
           style={{
-            margin: '24px 16px',
+            margin: "24px 16px",
             minHeight: 280,
           }}
         >
