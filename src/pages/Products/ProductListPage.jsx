@@ -273,18 +273,7 @@ const ProductListPage = () => {
       render: (recipe) => (
         <Space direction="vertical">
           {recipe && recipe.length > 0 ? (
-            recipe.map((item) => {
-              const ingredient = ingredients.find(
-                (ing) => ing.id === item.ingredientId
-              );
-              return (
-                <Tag key={item._id} color="purple">
-                  {ingredient ? ingredient.name : item.ingredientId} (
-                  {item.quantity}
-                  {ingredient ? ingredient.unit : "N/A"})
-                </Tag>
-              );
-            })
+            <Tag color="purple">{recipe.length} Ingredients</Tag>
           ) : (
             <span style={{ color: "#999" }}>Không có</span>
           )}

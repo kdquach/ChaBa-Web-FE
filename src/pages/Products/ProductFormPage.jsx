@@ -275,15 +275,15 @@ const ProductFormPage = () => {
           isViewing
             ? "Chi tiết sản phẩm"
             : isEditing
-              ? "Chỉnh sửa sản phẩm"
-              : "Thêm sản phẩm mới"
+            ? "Chỉnh sửa sản phẩm"
+            : "Thêm sản phẩm mới"
         }
         subtitle={
           isViewing
             ? "Xem thông tin chi tiết sản phẩm"
             : isEditing
-              ? "Cập nhật thông tin sản phẩm"
-              : "Nhập thông tin sản phẩm mới"
+            ? "Cập nhật thông tin sản phẩm"
+            : "Nhập thông tin sản phẩm mới"
         }
         showBack
         backPath="/products"
@@ -385,7 +385,7 @@ const ProductFormPage = () => {
                       style={{ flex: 1 }}
                       optionFilterProp="children"
                       filterOption={(input, option) =>
-                        option.children
+                        (option?.children?.toString() || "")
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
